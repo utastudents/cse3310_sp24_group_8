@@ -17,4 +17,20 @@ public class PlayerType {
         this.status = status;
     }
 
+    public String getNickname(){
+        return nickname;
+    }
+
+    public String getColor(){
+        return color;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
 }
