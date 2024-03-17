@@ -1,7 +1,8 @@
 package uta.cse3310;
 
-// A player can be an X or an O
+//class with 2 fields for nick and color
+public class PlayerType {
+    private String nickname;
+    private String color;
 
-public enum PlayerType {
-    NOPLAYER, XPLAYER, OPLAYER
 }
