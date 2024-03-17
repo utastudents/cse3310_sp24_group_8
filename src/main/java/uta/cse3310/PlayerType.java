@@ -5,18 +5,21 @@ public class PlayerType {
     private String nickname;
     private String color;
     
+
+    //this is too help navigate lobbies
     private Status status;
     public enum Status {
         Waiting, Playing
     }
 
-    
+    //constructor of variables
     public PlayerType(String nickanme, String color, Status staus){
         this.nickname = nickanme;
         this.color = color;
         this.status = status;
     }
 
+    //getters and setters
     public String getNickname(){
         return nickname;
     }
