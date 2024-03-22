@@ -11,9 +11,14 @@ public class Game {
         initialize();
     }
 
-    public Game(GameStats finalGameStats) {
+    public Game(GameStats ingameStats, GameStats finalGameStats) {
+        this.ingameStats = ingameStats;
         this.finalGameStats = finalGameStats;
         initialize();
+    }
+
+    public void setFinalGameStats(GameStats finalGameStats) {
+        this.finalGameStats = finalGameStats;
     }
 
     private void initialize() {
@@ -29,5 +34,31 @@ public class Game {
 
     public void update(UserEvent userEvent) {
         // Your logic to handle user events and update game state here
+    }
+
+    public static class GameStats {
+        private int gamesPlayed;
+        private int gamesWon;
+        private int gamesLost;
+
+        public GameStats() {
+            gamesPlayed = 0;
+            gamesWon = 0;
+            gamesLost = 0;
+        }
+
+        public void incrementGamesPlayed() {
+            gamesPlayed++;
+        }
+
+        public void incrementGamesWon() {
+            gamesWon++;
+        }
+
+        public void incrementGamesLost() {
+            gamesLost++;
+        }
+
+        // You can add more methods to access and modify statistics as needed
     }
 }
