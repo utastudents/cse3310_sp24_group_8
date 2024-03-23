@@ -3,21 +3,21 @@ package uta.cse3310;
 public class Game {
     public PlayerType[][] button; // Grid of PlayerType
     public String[] msg;
-    public GameStats ingameStats;
-    public GameStats finalGameStats;
+    public int ingameStats;
+    public int finalGameStats;
 
-    public Game(GameStats ingameStats) {
-        this.ingameStats = ingameStats;
+    public Game(int initialScore) {
+        this.ingameStats = initialScore;
         initialize();
     }
 
-    public Game(GameStats ingameStats, GameStats finalGameStats) {
+    public Game(int ingameStats, int finalGameStats) {
         this.ingameStats = ingameStats;
         this.finalGameStats = finalGameStats;
         initialize();
     }
 
-    public void setFinalGameStats(GameStats finalGameStats) {
+    public void setFinalGameStats(int finalGameStats) {
         this.finalGameStats = finalGameStats;
     }
 
@@ -25,7 +25,7 @@ public class Game {
         button = new PlayerType[50][50]; // 50x50 grid
         for (int i = 0; i < button.length; i++) {
             for (int j = 0; j < button[i].length; j++) {
-                button[i][j] = PlayerType.NOPLAYER;
+                button[i][j] = null;
             }
         }
         msg = new String[1];

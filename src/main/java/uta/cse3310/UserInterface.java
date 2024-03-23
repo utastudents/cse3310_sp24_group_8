@@ -15,7 +15,7 @@ public class UserInterface {
         return readyUp;
     }
 
-    public void setReadyUp(){
+    public void setReadyUp(boolean readyUp){
         this.readyUp = readyUp;
     }
 

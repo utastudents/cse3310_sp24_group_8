@@ -1,15 +1,15 @@
-package main.java.uta.cse3310;
+package uta.cse3310;
 
 import java.util.*; 
 
 public class Leaderboard {
 
-        List<PLayerType> players;
-        GameStats finalGameStats;
+        List<PlayerType> players;
+        int finalGameStats;
 
-        public Leaderboard() {
+        public Leaderboard(int finalGameStats) {
                 players = new ArrayList<>();
-                finalGameStats = new GameStats();
+                finalGameStats = finalGameStats;
         }
 
         public void display() {
