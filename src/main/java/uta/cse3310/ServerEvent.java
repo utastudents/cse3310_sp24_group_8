@@ -1,7 +1,7 @@
 package uta.cse3310;
 
 public class ServerEvent {
-    PlayerType YouAre; // Either an XPLAYER or a YPLAYER
+    PlayerType UserName; // players username will be stored here
     int GameId;
     
 }
