@@ -2,10 +2,7 @@ package uta.cse3310;
 import java.io.File;
 
 public class GameLogic {
-    private PlayerType player1;
-    private PlayerType player2;
-    private PlayerType player3;
-    private PlayerType player4;
+    private PlayerType players;
     private PlayerType button;
 
     private int gameId;
@@ -15,11 +12,8 @@ public class GameLogic {
     private String[] randomWords;
     private double fillerDensity;
 
-    public GameLogic(PlayerType player1, PlayerType player2, PlayerType player3, PlayerType player4, PlayerType button) {
-        this.player1 = player1;
-        this.player2 = player2;
-        this.player3 = player3;
-        this.player4 = player4;
+    public GameLogic(PlayerType players, PlayerType button) {
+        this.players = players;
         this.button = button;
     }
 
