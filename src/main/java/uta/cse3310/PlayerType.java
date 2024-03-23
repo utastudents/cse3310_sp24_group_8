@@ -13,7 +13,7 @@ public class PlayerType {
     }
 
     //constructor of variables
-    public PlayerType(String nickanme, String color, Status staus){
+    public PlayerType(String nickanme, String color, Status status){
         this.nickname = nickanme;
         this.color = color;
         this.status = status;
