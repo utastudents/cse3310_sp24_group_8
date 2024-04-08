@@ -2,8 +2,9 @@ package uta.cse3310;
 
 //class with 2 fields for nick and color
 public class PlayerType {
-    private String nickname;
-    private String color;
+    //Color and player are immutible once you select these they do not change
+    private final String nickname;
+    private final String color;
     
 
     //this is too help navigate lobbies
@@ -13,8 +14,16 @@ public class PlayerType {
     }
 
     //constructor of variables
-    public PlayerType(String nickanme, String color, Status status){
-        this.nickname = nickanme;
+    public PlayerType(String nickname, String color, Status status){
+        //player or color cant be empty
+        if (nickname == null || nickname.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nickname must not be null or empty.");
+        }
+        if (color == null || color.trim().isEmpty()) {
+            throw new IllegalArgumentException("Color must not be null or empty.");
+        }
+
+        this.nickname = nickname;
         this.color = color;
         this.status = status;
     }
