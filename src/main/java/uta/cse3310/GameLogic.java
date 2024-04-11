@@ -1,5 +1,6 @@
 package uta.cse3310;
 import java.io.File;
+import java.util.Random;
 
 public class GameLogic {
     private PlayerType players;
@@ -15,6 +16,10 @@ public class GameLogic {
     public GameLogic(PlayerType players, PlayerType button) {
         this.players = players;
         this.button = button;
+    }
+
+    public int getGameId() {
+        return gameId;
     }
 
     public void setGameId(int gameId) {
@@ -41,17 +46,29 @@ public class GameLogic {
         this.fillerDensity = fillerDensity;
     }
 
-    public void gridGenerator(char[][] wordGrid, String[] randomWords, double wordDensity, double fillerDensity) {
-        // Logic to generate the word grid based on parameters
+    // Logic to generate the game grid based on parameters
+    public void gridGenerator() {
+        wordGrid = new char[50][50]; // Assuming fixed grid size
+        Random random = new Random();
+        for (int i = 0; i < wordGrid.length; i++) {
+            for (int j = 0; j < wordGrid[i].length; j++) {
+                // Generate random characters (for simplicity, using ASCII values)
+                wordGrid[i][j] = (char) (random.nextInt(26) + 'A');
+            }
+        }
     }
 
-    public double fillerPercentage(int wordDensity, String[] randomWords) {
-        // Logic to calculate filler percentage based on word density and random words
-        return 0.0; // Placeholder return value
+    // Logic to calculate filler percentage based on word density and random words
+    public double calculateFillerPercentage() {
+        int totalCells = wordGrid.length * wordGrid[0].length;
+        int wordCells = (int) (totalCells * wordDensity);
+        int fillerCells = totalCells - wordCells;
+        return (double) fillerCells / totalCells * 100.0;
     }
 
-    public boolean isValidWord(PlayerType player, String[] randomWords) {
-        // Logic to check if the selected word is valid for the player
-        return false; // Placeholder return value
+    // Logic to check if the selected word is valid for the player
+    public boolean isValidWord(String word) {
+        // Example: Check if the word starts with the player's color
+        return word.startsWith(players.getColor());
     }
 }
