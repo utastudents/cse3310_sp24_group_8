@@ -61,8 +61,8 @@ public class App extends WebSocketServer {
     }
 
     public static void main(String[] args) {
-        int httpPort = 8080; // HTTP server port
-        int webSocketPort = 9880; // WebSocket server port
+        int httpPort = 9008; // HTTP server port
+        int webSocketPort = 9108; // WebSocket server port
 
         // Start the HTTP server
         HttpServer httpServer = new HttpServer(httpPort, "./html");
