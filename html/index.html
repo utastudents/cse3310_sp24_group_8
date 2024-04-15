@@ -33,13 +33,18 @@
     };
 
     connection.onmessage = function (evt) {
-        console.log("Message received: ", evt.data);
         var msg = JSON.parse(evt.data);
-
         if (msg.action === "updateLobby") {
             updateLobby(msg.players);
+            document.getElementById("lobbyStatus").innerHTML = "Waiting for other players...";
         }
     };
+
+    function updateLobby(players) {
+        var playersList = "Players in Lobby: " + players.join(", ");
+        document.getElementById("playersInLobby").innerHTML = playersList;
+        
+    }
 
     document.getElementById("joinButton").addEventListener("click", function() {
         var username = document.getElementById("username").value.trim();
@@ -55,10 +60,7 @@
         }
     });
 
-    function updateLobby(players) {
-        var playersList = "Players in Lobby: " + players.join(", ");
-        document.getElementById("playersInLobby").innerHTML = playersList;
-    }
+    
 </script>
 </body>
 
