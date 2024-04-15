@@ -1,67 +1,112 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
+    <title>Multiplayer Word Search Game</title>
+    <style>
+        /* Add your CSS styles here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        #lobby-container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #lobby-status {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        #players-in-lobby {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
-    <label for="username">Username:</label>
-    <input type="text" id="username" maxlength="20">
-    <button id="joinButton">Join Game</button>
-    <div id="lobbyStatus">Waiting for players...</div>
-    <div id="playersInLobby">Players in Lobby:</div>
-    <label id="topMessage"></label>
-    <table id="wordSearchBoard" style="display:none;"></table>
-    <label id="bottomMessage"></label>
+    <div id="lobby-container">
+        <label for="username">Username:</label>
+        <input type="text" id="username" maxlength="20">
+        <button id="joinButton">Join Game</button>
+        <div id="lobby-status">Waiting for players...</div>
+        <div id="players-in-lobby">Players in Lobby:</div>
+        <label id="topMessage"></label>
+        <table id="wordSearchBoard" style="display:none;"></table>
+        <label id="bottomMessage"></label>
+    </div>
 
-<script>
-    var gameId = -1;
-    class UserEvent {
-        Button = -1;
-        Players = 0;
-        GameId = 0;
-    }
-
-    var connection = null;
-    var serverUrl = "ws://" + window.location.hostname + ":9108";
-    connection = new WebSocket(serverUrl);
-    
-    connection.onopen = function () {
-        console.log("Connected to server");
-    };
-
-    connection.onclose = function () {
-        document.getElementById("topMessage").innerHTML = "Server Offline";
-    };
-
-    connection.onmessage = function (evt) {
-        var msg = JSON.parse(evt.data);
-        if (msg.action === "updateLobby") {
-            updateLobby(msg.players);
-            document.getElementById("lobbyStatus").innerHTML = "Waiting for other players...";
-        }
-    };
-
-    function updateLobby(players) {
-        var playersList = "Players in Lobby: " + players.join(", ");
-        document.getElementById("playersInLobby").innerHTML = playersList;
+    <script>
+        var gameId = -1;
+        var connection = null;
+        var serverUrl = "ws://" + window.location.hostname + ":9108";
+        connection = new WebSocket(serverUrl);
         
-    }
+        connection.onopen = function () {
+            console.log("Connected to server");
+        };
 
-    document.getElementById("joinButton").addEventListener("click", function() {
-        var username = document.getElementById("username").value.trim();
-        if (username) {
-            var joinRequest = {
-                action: "join",
-                username: username
-            };
-            connection.send(JSON.stringify(joinRequest));
-            document.getElementById("lobbyStatus").innerHTML = "Trying to join the game...";
-        } else {
-            alert("Please enter a username.");
+        connection.onclose = function () {
+            document.getElementById("topMessage").innerHTML = "Server Offline";
+        };
+
+        connection.onmessage = function (evt) {
+            var msg = JSON.parse(evt.data);
+            if (msg.action === "updateLobby") {
+                updateLobby(msg.players);
+                document.getElementById("lobby-status").innerHTML = "Waiting for other players...";
+            }
+        };
+
+        function updateLobby(players) {
+            var playersList = "Players in Lobby: " + players.join(", ");
+            document.getElementById("players-in-lobby").innerHTML = playersList;
         }
-    });
 
-
-</script>
+        document.getElementById("joinButton").addEventListener("click", function() {
+            var username = document.getElementById("username").value.trim();
+            if (username) {
+                var joinRequest = {
+                    action: "join",
+                    username: username
+                };
+                connection.send(JSON.stringify(joinRequest));
+                document.getElementById("lobby-status").innerHTML = "Trying to join the game...";
+            } else {
+                alert("Please enter a username.");
+            }
+        });
+    </script>
 </body>
-
 </html>
