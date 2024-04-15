@@ -8,13 +8,19 @@ package uta.cse3310;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
+import org.json.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+
 
 public class App extends WebSocketServer {
     private int gameId;
     private Game game; // Instance of the Game class
+    private Lobby lobby;
 
     public App(int port) {
         super(new InetSocketAddress(port));
+        this.lobby = new Lobby();
         this.gameId = 1; // Initialize gameId
         this.game = new Game(); // Initialize the game instance
     }
@@ -34,14 +40,43 @@ public class App extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        // Your implementation for handling WebSocket messages
         System.out.println("Message received from " + conn.getRemoteSocketAddress() + ": " + message);
+    try {
+        JSONObject msg = new JSONObject(message);
+        String action = msg.getString("action");
+        String username = msg.getString("username");
+
+        // Check if the color key exists
+        if (msg.has("color")) {
+            String color = msg.getString("color");
+            // Process color if needed
+        }
+
+        switch (action) {
+            case "join":
+                // Assume default color if none provided
+                String userColor = msg.has("color") ? msg.getString("color") : "defaultColor";
+                PlayerType player = new PlayerType(username, userColor, null); // Assuming PlayerType constructor takes username and color
+                lobby.addPlayer(player);
+                System.out.println(username + " added to the lobby.");
+                broadcastLobbyUpdate();  // Broadcast the updated lobby state
+                break;
+            default:
+                System.out.println("Unknown action: " + action);
+        }
+    } catch (JSONException e) {
+        System.err.println("Error parsing message: " + message);
+        e.printStackTrace();
+    }
     }
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
-        // Your implementation for handling WebSocket errors
-        System.err.println("An error occurred on WebSocket connection: " + conn.getRemoteSocketAddress());
+        if (conn != null) {
+            System.err.println("An error occurred on WebSocket connection: " + conn.getRemoteSocketAddress());
+        } else {
+            System.err.println("An error occurred on a WebSocket connection, but no specific connection is associated.");
+        }
         ex.printStackTrace();
     }
 
@@ -59,6 +94,30 @@ public class App extends WebSocketServer {
     public void resetGame() {
         game.reset(); // Reset the game state
     }
+
+    private void broadcastLobbyUpdate() {
+        JSONObject response = new JSONObject();
+        try {
+            response.put("action", "updateLobby");
+            JSONArray playersArray = new JSONArray();
+            for (PlayerType player : lobby.getPlayers()) {
+                playersArray.put(player.getNickname()); // Replace with correct method to get username
+            }
+            response.put("players", playersArray);
+            broadcast(response.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void broadcast(String message) {
+        for (WebSocket conn : getConnections()) {
+            if (conn != null && conn.isOpen()) {
+                conn.send(message);
+            }
+        }
+    }
+
 
     public static void main(String[] args) {
         int httpPort = 9008; // HTTP server port
