@@ -86,6 +86,8 @@
             if (msg.action === "updateLobby") {
                 updateLobby(msg.players);
                 document.getElementById("lobby-status").innerHTML = "Waiting for other players...";
+            } else if (msg.action === "join") {
+                document.getElementById("lobby-status").innerHTML = "Joined the game!";
             }
         };
 
