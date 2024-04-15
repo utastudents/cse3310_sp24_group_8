@@ -68,7 +68,6 @@ public class GameLogic {
 
     // Logic to check if the selected word is valid for the player
     public boolean isValidWord(String word) {
-        // Example: Check if the word starts with the player's color
         return word.startsWith(players.getColor());
     }
 }
