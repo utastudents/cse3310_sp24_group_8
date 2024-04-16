@@ -23,14 +23,12 @@ public class Leaderboard {
     public List<PlayerType> getSortedPlayers() {
         List<Map.Entry<PlayerType, Integer>> sortedEntries = new ArrayList<>(playerScores.entrySet());
         sortedEntries.sort(Map.Entry.<PlayerType, Integer>comparingByValue().reversed());
-        
-    //Extract players for returning
+    
         List<PlayerType> sortedPlayers = new ArrayList<>();
         for (Map.Entry<PlayerType, Integer> entry : sortedEntries) {
             sortedPlayers.add(entry.getKey());
         }
         return sortedPlayers;
-
     }
 
     // Displays the leaderboard
@@ -45,5 +43,9 @@ public class Leaderboard {
     // Resets the leaderboard for a new game
     public void reset() {
         playerScores.clear();
+    }
+
+    public Map<PlayerType, Integer> getPlayerScores() {
+        return new HashMap<>(playerScores);
     }
 }

@@ -52,7 +52,7 @@ public class App extends WebSocketServer {
                 PlayerType player = new PlayerType(username, userColor, null);
                 
                 // try to add player using then check for lobby capacity
-                if (lobby.tryAddPlayer(player)) {
+                if (lobby.addPlayer(player)) {
                     System.out.println(username + " added to the lobby.");
                     broadcastLobbyUpdate();  //update all clients about the new player
                 } else {

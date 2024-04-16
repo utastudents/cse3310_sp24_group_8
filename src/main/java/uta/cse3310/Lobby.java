@@ -12,8 +12,8 @@ public class Lobby {
     }
 
     // Method to add a player to the lobby
-    public void addPlayer(PlayerType player) {
-        players.add(player);
+    public boolean addPlayer(PlayerType player) {
+        return players.add(player);
     }
 
     // Method to remove a player from the lobby
