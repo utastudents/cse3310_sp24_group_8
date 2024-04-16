@@ -57,6 +57,18 @@
         #ready-button {
             margin-top: 20px;
         }
+
+        #game-grid td {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #666;
+            text-align: center;
+        }
+
+        #leaderboard p {
+            font-weight: bold;
+        }
+
     </style>
 </head>
 <body>
@@ -70,6 +82,13 @@
         <label id="topMessage"></label>
         <table id="wordSearchBoard" style="display:none;"></table>
         <label id="bottomMessage"></label>
+    </div>
+
+    <div id="game-container" style="display:none; text-align:center;">
+        <h2>Word Search Game</h2>
+        <table id="game-grid" style="margin: auto;"></table>
+        <h3>Leaderboard</h3>
+        <div id="leaderboard"></div>
     </div>
 
     <script>
@@ -87,34 +106,81 @@
         };
 
         connection.onmessage = function (evt) {
-            var msg = JSON.parse(evt.data);
-            if (msg.action === "updateLobby") {
-                updateLobby(msg.players);
-                document.getElementById("lobby-status").innerHTML = "Waiting for other players...";
-            } else if (msg.action === "join") {
-                document.getElementById("lobby-status").innerHTML = "Joined the game!";
-            }
-
-            if (msg.action === "lobbyFull") {
-                document.getElementById("lobby-status").innerHTML = "Lobby is full!";
-                document.getElementById("joinButton").disabled = true;
-                document.getElementById("players-in-lobby").innerHTML = playersList;
-            } else if (msg.action === "updateLobby") {
-                updateLobby(msg.players);
+            try {
+                var msg = JSON.parse(evt.data);
+                switch (msg.action) {
+                    case "updateLobby":
+                        updateLobby(msg.players);
+                        break;
+                    case "startGame":
+                        setupGameScreen(msg.grid, msg.players);
+                        break;
+                    case "join":
+                        document.getElementById("lobby-status").innerHTML = "Joined the game!";
+                        break;
+                    case "lobbyFull":
+                        document.getElementById("lobby-status").innerHTML = "Lobby is full!";
+                        document.getElementById("joinButton").disabled = true;
+                        break;
+                    default:
+                        console.log("Received unknown action type:", msg.action);
+                }
+            } catch (error) {
+                console.error("Error handling message from server:", error);
             }
         };
 
-        function updateLobby(players) {
-            var playersList = "Players in Lobby: " + players.join(", ");
-            document.getElementById("players-in-lobby").innerHTML = playersList;
+        function setupGameScreen(grid, players) {
+            document.getElementById('lobby-container').style.display = 'none'; // Hide lobby
+            document.getElementById('game-container').style.display = 'block'; // Show game screen
 
-            if (players.length >= 4) {
-                document.getElementById("joinButton").disabled = true;
-                document.getElementById("lobby-status").innerHTML = "Lobby is full. Please wait.";
-            } else {
-                document.getElementById("joinButton").disabled = false;
-                document.getElementById("lobby-status").innerHTML = "Waiting for other players...";
-            }
+            var gridTable = document.getElementById('game-grid');
+            gridTable.innerHTML = '';
+            grid.forEach(row => {
+                var tr = document.createElement('tr');
+                row.split('').forEach(char => {
+                    var td = document.createElement('td');
+                    td.textContent = char;
+                    tr.appendChild(td);
+                });
+                gridTable.appendChild(tr);
+            });
+
+            updateLeaderboard(players);
+        }
+
+        function updateLeaderboard(players) {
+            var leaderboardDiv = document.getElementById('leaderboard');
+            leaderboardDiv.innerHTML = '';
+            players.forEach(function(player) {
+                var entry = document.createElement('div');
+                entry.textContent = player.nickname + ': ' + player.score + (player.isReady ? ' (Ready)' : '');
+                leaderboard.appendChild(entry);
+            });
+        }
+
+        function displayGameGrid(grid) {
+            var table = document.getElementById('game-grid');
+            table.innerHTML = '';  // Clear previous grid
+            grid.forEach(function(row) {
+                var tr = document.createElement('tr');
+                row.forEach(function(cell) {
+                    var td = document.createElement('td');
+                    td.textContent = cell;  // Assuming each cell is a single character
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
+        }
+
+        function updateLobby(players) {
+            var playersList = "Players in Lobby: ";
+            players.forEach(player => {
+                var color = player.isReady ? 'green' : 'red'; // Green for ready, red for not ready
+                playersList += `<span style="color: ${color};">${player.nickname}</span>, `;
+            });
+            
+            document.getElementById("players-in-lobby").innerHTML = playersList.slice(0, -2);
         }
 
         document.getElementById("joinButton").addEventListener("click", function() {
