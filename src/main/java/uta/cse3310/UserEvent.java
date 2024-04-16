@@ -1,5 +1,5 @@
 package uta.cse3310;
-// User events are sent from the webpage to the server
+
 
 public class UserEvent {
     int GameId; // the game ID on the server
@@ -20,4 +20,18 @@ public class UserEvent {
         return Button;
     }
 
+    //setter for game ID
+    public void setGameId(int gameId) {
+        this.GameId = gameId;
+    }
+
+    //setter for players
+    public void setPlayers(PlayerType players) {
+        this.Players = players;
+    }
+
+    //setter for button
+    public void setButton(int button) {
+        this.Button = button;
+    }
 }
