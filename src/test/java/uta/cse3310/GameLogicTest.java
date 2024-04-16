@@ -15,12 +15,15 @@ public class GameLogicTest {
     }
 
     @Test
-    public void testSetWordsFromFile() {
-        gameLogic.setWordsFromFile("words.txt");
+    public void testSetWordsFromURL() {
+        PlayerType player = new PlayerType("PlayerName", "PlayerColor", PlayerType.Status.Waiting);
+        GameLogic gameLogic = new GameLogic(player);
+        gameLogic.setWordsFromFile("https://raw.githubusercontent.com/utastudents/cse3310_sp24_group_8/main/src/main/java/uta/cse3310/words.txt");
         String[] randomWords = gameLogic.getRandomWords();
         assertNotNull(randomWords);
         assertTrue(randomWords.length > 0);
     }
+    
 
     @Test
     public void testGenerateRandomWords() {
