@@ -39,6 +39,18 @@ public class GameLogic {
         return wordGrid;
     }
 
+    public void startGame() {
+        initializeGame();
+        System.out.println("Game started.");
+    }
+
+    private void initializeGame() {
+        gridGenerator();
+        setWordsFromFile("https://raw.githubusercontent.com/utastudents/cse3310_sp24_group_8/main/src/main/java/uta/cse3310/words.txt");
+        generateFillerDensity();
+        System.out.println("Game initialized."); 
+    }
+
     // Method to set words from a file hosted on a URL
     public void setWordsFromFile(String url) {
         List<String> wordsList = new ArrayList<>();

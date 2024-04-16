@@ -23,7 +23,7 @@ public class Lobby {
 
     // Method to check if the lobby is full
     public boolean isFull() {
-        return players.size() >= 4; // Maximum of 4 players
+        return players.size() >= MAX_PLAYERS; // Maximum of 4 players
     }
 
     // Method to get the list of players in the lobby
@@ -36,12 +36,15 @@ public class Lobby {
         players.clear();
     }
 
-    public synchronized boolean tryAddPlayer(PlayerType player) {
-        if (players.size() < MAX_PLAYERS) {
-            players.add(player);
-            return true;
-        } else {
-            return false;
+    // Method to check if all players in the lobby are ready
+    public boolean areAllPlayersReady() {
+        for (PlayerType player : players) {
+            if (player.getStatus() != PlayerType.Status.Playing) {
+                return false;
+            }
         }
+        return true;
     }
+
+   
 }
