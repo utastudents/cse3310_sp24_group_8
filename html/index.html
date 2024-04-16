@@ -94,11 +94,27 @@
             } else if (msg.action === "join") {
                 document.getElementById("lobby-status").innerHTML = "Joined the game!";
             }
+
+            if (msg.action === "lobbyFull") {
+                document.getElementById("lobby-status").innerHTML = "Lobby is full!";
+                document.getElementById("joinButton").disabled = true;
+                document.getElementById("players-in-lobby").innerHTML = playersList;
+            } else if (msg.action === "updateLobby") {
+                updateLobby(msg.players);
+            }
         };
 
         function updateLobby(players) {
             var playersList = "Players in Lobby: " + players.join(", ");
             document.getElementById("players-in-lobby").innerHTML = playersList;
+
+            if (players.length >= 4) {
+                document.getElementById("joinButton").disabled = true;
+                document.getElementById("lobby-status").innerHTML = "Lobby is full. Please wait.";
+            } else {
+                document.getElementById("joinButton").disabled = false;
+                document.getElementById("lobby-status").innerHTML = "Waiting for other players...";
+            }
         }
 
         document.getElementById("joinButton").addEventListener("click", function() {

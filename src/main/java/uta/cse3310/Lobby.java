@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Lobby {
+    private static final int MAX_PLAYERS = 4;
     private List<PlayerType> players;
 
     public Lobby() {
@@ -33,5 +34,14 @@ public class Lobby {
     // Method to reset the lobby
     public void reset() {
         players.clear();
+    }
+
+    public synchronized boolean tryAddPlayer(PlayerType player) {
+        if (players.size() < MAX_PLAYERS) {
+            players.add(player);
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -1,21 +1,23 @@
 package uta.cse3310;
-import java.io.File;
+
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class GameLogic {
     private PlayerType players;
-    private PlayerType button;
 
     private int gameId;
     private char[][] wordGrid;
-    private File words;
-    private double wordDensity;
     private String[] randomWords;
     private double fillerDensity;
 
-    public GameLogic(PlayerType players, PlayerType button) {
+    public GameLogic(PlayerType players) {
         this.players = players;
-        this.button = button;
     }
 
     public int getGameId() {
@@ -30,20 +32,46 @@ public class GameLogic {
         this.wordGrid = wordGrid;
     }
 
-    public void setWords(File words) {
-        this.words = words;
+    public char[][] getWordGrid() {
+        return wordGrid;
     }
 
-    public void setWordDensity(double wordDensity) {
-        this.wordDensity = wordDensity;
+    // Method to read words from a file
+    public void setWordsFromFile(String filePath) {
+        List<String> wordsList = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                wordsList.add(line.trim());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        randomWords = wordsList.toArray(new String[0]);
     }
 
-    public void setRandomWords(String[] randomWords) {
-        this.randomWords = randomWords;
+    // Method to generate random words
+    public void generateRandomWords(int wordCount) {
+        randomWords = new String[wordCount];
+        Random random = new Random();
+        for (int i = 0; i < wordCount; i++) {
+            int index = random.nextInt(randomWords.length);
+            randomWords[i] = randomWords[index];
+        }
     }
 
-    public void setFillerDensity(double fillerDensity) {
-        this.fillerDensity = fillerDensity;
+    public String[] getRandomWords() {
+        return randomWords;
+    }
+
+    // Method to generate random filler density
+    public void generateFillerDensity() {
+        Random random = new Random();
+        fillerDensity = random.nextDouble();
+    }
+
+    public double getFillerDensity() {
+        return fillerDensity;
     }
 
     // Logic to generate the game grid based on parameters
@@ -61,7 +89,7 @@ public class GameLogic {
     // Logic to calculate filler percentage based on word density and random words
     public double calculateFillerPercentage() {
         int totalCells = wordGrid.length * wordGrid[0].length;
-        int wordCells = (int) (totalCells * wordDensity);
+        int wordCells = (int) (totalCells * fillerDensity);
         int fillerCells = totalCells - wordCells;
         return (double) fillerCells / totalCells * 100.0;
     }

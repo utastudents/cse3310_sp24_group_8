@@ -44,22 +44,21 @@ public class App extends WebSocketServer {
     try {
         JSONObject msg = new JSONObject(message);
         String action = msg.getString("action");
-        String username = msg.getString("username");
-
-        // Check if the color key exists
-        if (msg.has("color")) {
-            String color = msg.getString("color");
-            // Process color if needed
-        }
 
         switch (action) {
             case "join":
-                // Assume default color if none provided
+                String username = msg.getString("username");
                 String userColor = msg.has("color") ? msg.getString("color") : "defaultColor";
-                PlayerType player = new PlayerType(username, userColor, null); // Assuming PlayerType constructor takes username and color
-                lobby.addPlayer(player);
-                System.out.println(username + " added to the lobby.");
-                broadcastLobbyUpdate();  // Broadcast the updated lobby state
+                PlayerType player = new PlayerType(username, userColor, null);
+                
+                // try to add player using then check for lobby capacity
+                if (lobby.tryAddPlayer(player)) {
+                    System.out.println(username + " added to the lobby.");
+                    broadcastLobbyUpdate();  //update all clients about the new player
+                } else {
+                    //send a message back to the client trying to join that the lobby is full
+                    conn.send(new JSONObject().put("action", "lobbyFull").toString());
+                }
                 break;
             default:
                 System.out.println("Unknown action: " + action);

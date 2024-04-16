@@ -5,8 +5,9 @@ uta/cse3310/HttpServer.class
 uta/cse3310/Leaderboard.class
 uta/cse3310/ServerEvent.class
 uta/cse3310/PlayerType$Status.class
-uta/cse3310/PlayerType.class
 uta/cse3310/HttpServer$1.class
 uta/cse3310/UserInterface.class
-uta/cse3310/Game.class
 uta/cse3310/Game$GameStats.class
+uta/cse3310/Lobby.class
+uta/cse3310/PlayerType.class
+uta/cse3310/Game.class
