@@ -2,7 +2,9 @@ package uta.cse3310;
 
     import java.net.InetSocketAddress;
     import java.util.Collections;
-    import java.util.Vector;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
     
     import java.net.InetSocketAddress;
 import org.java_websocket.WebSocket;
@@ -17,6 +19,7 @@ public class App extends WebSocketServer {
     private int gameId;
     private Game game; // Instance of the Game class
     private Lobby lobby;
+    private Map<WebSocket, PlayerType> connectionPlayerMap = new HashMap<>();
 
     public App(int port) {
         super(new InetSocketAddress(port));
@@ -34,39 +37,41 @@ public class App extends WebSocketServer {
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        // Your implementation for handling WebSocket connection closure
+        // Remove the player when their connection closes
+        PlayerType player = connectionPlayerMap.remove(conn);
+        if (player != null) {
+            lobby.removePlayer(player);
+            broadcastLobbyUpdate();
+        }
         System.out.println("WebSocket connection closed: " + conn.getRemoteSocketAddress() + " (Reason: " + reason + ")");
     }
 
     @Override
     public void onMessage(WebSocket conn, String message) {
         System.out.println("Message received from " + conn.getRemoteSocketAddress() + ": " + message);
-    try {
-        JSONObject msg = new JSONObject(message);
-        String action = msg.getString("action");
-
-        switch (action) {
-            case "join":
-                String username = msg.getString("username");
-                String userColor = msg.has("color") ? msg.getString("color") : "defaultColor";
-                PlayerType player = new PlayerType(username, userColor, null);
-                
-                // try to add player using then check for lobby capacity
-                if (lobby.addPlayer(player)) {
-                    System.out.println(username + " added to the lobby.");
-                    broadcastLobbyUpdate();  //update all clients about the new player
-                } else {
-                    //send a message back to the client trying to join that the lobby is full
-                    conn.send(new JSONObject().put("action", "lobbyFull").toString());
-                }
-                break;
-            default:
-                System.out.println("Unknown action: " + action);
+        // Existing message handling
+        try {
+            JSONObject msg = new JSONObject(message);
+            String action = msg.getString("action");
+            switch (action) {
+                case "join":
+                    String username = msg.getString("username");
+                    String color = msg.has("color") ? msg.getString("color") : "defaultColor";
+                    PlayerType player = new PlayerType(username, color, PlayerType.Status.Waiting);
+                    if (lobby.addPlayer(player)) {
+                        connectionPlayerMap.put(conn, player); // Link the connection to the player
+                        System.out.println(username + " added to the lobby.");
+                        broadcastLobbyUpdate();
+                    } else {
+                        conn.send(new JSONObject().put("action", "lobbyFull").toString());
+                    }
+                    break;
+                // Other cases as previously
+            }
+        } catch (JSONException e) {
+            System.err.println("Error parsing message: " + message);
+            e.printStackTrace();
         }
-    } catch (JSONException e) {
-        System.err.println("Error parsing message: " + message);
-        e.printStackTrace();
-    }
     }
 
     @Override
