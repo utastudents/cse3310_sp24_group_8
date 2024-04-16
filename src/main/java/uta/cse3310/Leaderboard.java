@@ -24,4 +24,11 @@ public class Leaderboard {
         List<Map.Entry<PlayerType, Integer>> sortedEntries = new ArrayList<>(playerScores.entrySet());
         sortedEntries.sort(Map.Entry.<PlayerType, Integer>comparingByValue().reversed());
         }
+    //Extract players for returning
+        List<PlayerType> sortedPlayers = new ArrayList<>();
+        for (Map.Entry<PlayerType, Integer> entry : sortedEntries) {
+            sortedPlayers.add(entry.getKey());
+        }
+        return sortedPlayers;
+    }
 }
