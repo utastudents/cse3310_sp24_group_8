@@ -10,17 +10,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class GameLogic {
-    private PlayerType players;
+    private List<PlayerType> players;
+    private Broadcast broadcaster;
+    List<String> validWords;
 
     private int gameId;
     private char[][] wordGrid;
     private String[] randomWords;
     private double fillerDensity;
 
-    public GameLogic(PlayerType players) {
+    public GameLogic(List<PlayerType> players, Broadcast broadcaster) {
         this.players = players;
         this.wordGrid = new char[50][50];
+        this.broadcaster = broadcaster;
+        this.validWords = new ArrayList<>();
     }
 
     public int getGameId() {
@@ -39,9 +47,36 @@ public class GameLogic {
         return wordGrid;
     }
 
-    public void startGame() {
+    public JSONArray serializePlayers() {
+        JSONArray playersArray = new JSONArray();
+        for (PlayerType player : players) {  // Assuming 'players' is a List<PlayerType>
+            JSONObject playerObject = new JSONObject();
+            playerObject.put("nickname", player.getNickname());
+            playerObject.put("isReady", player.getStatus() == PlayerType.Status.Playing);
+            playerObject.put("score", player.getScore());  // Assuming there is a getScore method
+            playersArray.put(playerObject);
+        }
+        return playersArray;
+    }
+
+
+    void startGame() {
         initializeGame();
-        System.out.println("Game started.");
+        broadcaster.broadcast("Game starts now!");
+        JSONObject startGameMessage = new JSONObject();
+        try {
+            JSONArray gridArray = new JSONArray();
+            for (char[] row : wordGrid) {
+                gridArray.put(new String(row));
+            }
+            startGameMessage.put("action", "startGame");
+            startGameMessage.put("grid", gridArray);
+            startGameMessage.put("players", serializePlayers()); // Assuming a method to serialize player data
+            broadcaster.broadcast(startGameMessage.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Game started with grid and player info sent to all players.");
     }
 
     private void initializeGame() {
@@ -114,10 +149,6 @@ public class GameLogic {
         return (double) fillerCells / totalCells * 100.0;
     }
 
-    // Logic to check if the selected word is valid for the player
-    public boolean isValidWord(String word) {
-        return word.startsWith(players.getColor());
-    }
 
     // Method to check if the specified word exists in the rows
     public boolean checkRows(String word) {
@@ -214,5 +245,9 @@ public boolean checkDiagonals(String word) {
             }
         }
         return 0;
+    }
+
+    public boolean isValidWord(String word) {
+        return validWords.contains(word);
     }
 }

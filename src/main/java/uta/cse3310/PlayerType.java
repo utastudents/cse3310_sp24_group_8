@@ -5,6 +5,7 @@ public class PlayerType {
     //Color and player are immutible once you select these they do not change
     private final String nickname;
     private final String color;
+    private int score;
     
 
     //this is too help navigate lobbies
@@ -39,6 +40,10 @@ public class PlayerType {
 
     public Status getStatus() {
         return status;
+    }
+
+    public int getScore() {
+        return score;
     }
 
     public void setStatus(Status status) {

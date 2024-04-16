@@ -13,11 +13,7 @@ public class Lobby {
 
     // Method to add a player to the lobby
     public boolean addPlayer(PlayerType player) {
-        if (players.size() < MAX_PLAYERS) {
-            players.add(player);
-            return true;
-        }
-        return false;
+        return players.add(player);
     }
 
     // Method to remove a player from the lobby

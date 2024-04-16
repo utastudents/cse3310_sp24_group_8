@@ -1,8 +1,10 @@
 package uta.cse3310;
 
     import java.net.InetSocketAddress;
-    import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
     
@@ -15,17 +17,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 
-public class App extends WebSocketServer {
+public class App extends WebSocketServer implements Broadcast {
+    private List<PlayerType> players = new ArrayList<>();
     private int gameId;
+    private GameLogic gameLogic;
     private Game game; // Instance of the Game class
     private Lobby lobby;
     private Map<WebSocket, PlayerType> connectionPlayerMap = new HashMap<>();
+    
 
     public App(int port) {
         super(new InetSocketAddress(port));
         this.lobby = new Lobby();
         this.gameId = 1; // Initialize gameId
         this.game = new Game(); // Initialize the game instance
+        this.gameLogic = new GameLogic(players, this);
     }
 
     // WebSocketServer methods
@@ -49,30 +55,71 @@ public class App extends WebSocketServer {
     @Override
     public void onMessage(WebSocket conn, String message) {
         System.out.println("Message received from " + conn.getRemoteSocketAddress() + ": " + message);
-        // Existing message handling
         try {
             JSONObject msg = new JSONObject(message);
             String action = msg.getString("action");
+            
             switch (action) {
                 case "join":
-                    String username = msg.getString("username");
-                    String color = msg.has("color") ? msg.getString("color") : "defaultColor";
-                    PlayerType player = new PlayerType(username, color, PlayerType.Status.Waiting);
-                    if (lobby.addPlayer(player)) {
-                        connectionPlayerMap.put(conn, player); // Link the connection to the player
-                        System.out.println(username + " added to the lobby.");
-                        broadcastLobbyUpdate();
-                    } else {
-                        conn.send(new JSONObject().put("action", "lobbyFull").toString());
-                    }
+                    handleJoin(conn, msg);
                     break;
-                // Other cases as previously
+                case "ready":
+                    handleReady(conn, msg);
+                    break;
+                default:
+                    System.out.println("Unknown action: " + action);
+                    break;
             }
         } catch (JSONException e) {
             System.err.println("Error parsing message: " + message);
             e.printStackTrace();
         }
     }
+
+    private void handleJoin(WebSocket conn, JSONObject msg) throws JSONException {
+        String username = msg.getString("username");
+        String color = msg.has("color") ? msg.getString("color") : "defaultColor";
+        PlayerType player = new PlayerType(username, color, PlayerType.Status.Waiting);
+        if (lobby.addPlayer(player)) {
+            connectionPlayerMap.put(conn, player); // Link the connection to the player
+            System.out.println(username + " added to the lobby.");
+            broadcastLobbyUpdate();
+        } else {
+            conn.send(new JSONObject().put("action", "lobbyFull").toString());
+        }
+    }
+
+    private void handleReady(WebSocket conn, JSONObject msg) throws JSONException {
+        PlayerType player = connectionPlayerMap.get(conn);
+        if (player != null) {
+            player.setStatus(PlayerType.Status.Playing);
+            broadcastLobbyUpdate();
+            checkAllPlayersReady();
+        }
+    }
+
+
+
+    private void checkAllPlayersReady() {
+        System.out.println("Checking if gameLogic is null: " + (gameLogic == null));
+        if (gameLogic != null && lobby.areAllPlayersReady()) {
+            gameLogic.startGame();
+        } else {
+            System.out.println("GameLogic not initialized or not all players are ready.");
+        }
+    }
+
+
+    @Override
+    public void broadcast(String message) {
+        for (WebSocket conn : getConnections()) {
+            if (conn != null && conn.isOpen()) {
+                conn.send(message);
+            }
+        }
+    }
+        
+
 
     @Override
     public void onError(WebSocket conn, Exception ex) {
@@ -105,20 +152,15 @@ public class App extends WebSocketServer {
             response.put("action", "updateLobby");
             JSONArray playersArray = new JSONArray();
             for (PlayerType player : lobby.getPlayers()) {
-                playersArray.put(player.getNickname()); // Replace with correct method to get username
+                JSONObject playerInfo = new JSONObject();
+                playerInfo.put("nickname", player.getNickname());
+                playerInfo.put("isReady", player.getStatus() == PlayerType.Status.Playing); // Assume Status.Playing means the player is ready
+                playersArray.put(playerInfo);
             }
             response.put("players", playersArray);
             broadcast(response.toString());
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-    }
-    
-    public void broadcast(String message) {
-        for (WebSocket conn : getConnections()) {
-            if (conn != null && conn.isOpen()) {
-                conn.send(message);
-            }
         }
     }
 
