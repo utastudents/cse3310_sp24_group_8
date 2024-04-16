@@ -23,27 +23,5 @@ public class Leaderboard {
     public List<PlayerType> getSortedPlayers() {
         List<Map.Entry<PlayerType, Integer>> sortedEntries = new ArrayList<>(playerScores.entrySet());
         sortedEntries.sort(Map.Entry.<PlayerType, Integer>comparingByValue().reversed());
-
-        // Extract the players for returning
-        List<PlayerType> sortedPlayers = new ArrayList<>();
-        for (Map.Entry<PlayerType, Integer> entry : sortedEntries) {
-            sortedPlayers.add(entry.getKey());
         }
-        return sortedPlayers;
-    }
-
-    // Displays the leaderboard
-    public void display() {
-        List<PlayerType> sortedPlayers = getSortedPlayers();
-        System.out.println("Leaderboard:");
-        for (PlayerType player : sortedPlayers) {
-            System.out.println(player.getNickname() + " - Score: " + playerScores.get(player));
-        }
-    }
-
-    // Resets the leaderboard for a new game
-    public void reset() {
-        playerScores.clear();
-    }
 }
-
