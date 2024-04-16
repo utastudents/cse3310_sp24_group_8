@@ -1,17 +1,49 @@
 package uta.cse3310;
 
 import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 
 public class GameLogicTest {
 
     private GameLogic gameLogic;
+    private List<PlayerType> players;
+    private Broadcast mockBroadcast;
+
+
+    class MockBroadcast implements Broadcast {
+        List<String> messages = new ArrayList<>();
+
+        @Override
+        public void broadcast(String message) {
+            messages.add(message);
+        }
+    }
 
     @Before
     public void setUp() {
-        PlayerType player = new PlayerType("Player1", "Red", PlayerType.Status.Waiting);
-        gameLogic = new GameLogic(player);
+        players = new ArrayList<>();
+        players.add(new PlayerType("Player1", "Blue", PlayerType.Status.Waiting));  // Assuming PlayerType constructor requires a status
+        mockBroadcast = new MockBroadcast();
+        gameLogic = new GameLogic(players, mockBroadcast);
+        gameLogic.validWords.add("word");
+    }
+
+    @Test
+    public void testIsValidWord() {
+        // Assuming isValidWord checks something about the first player
+        assertTrue(gameLogic.isValidWord("word"));
+        assertFalse(gameLogic.isValidWord("nonexistent"));
+    }
+
+    @Test
+    public void testGameStart() {
+        gameLogic.startGame();
+        assertTrue(((MockBroadcast) mockBroadcast).messages.contains("Game starts now!"));
     }
 
     @Test
@@ -53,11 +85,6 @@ public class GameLogicTest {
         assertTrue(fillerPercentage >= 0 && fillerPercentage <= 100);
     }
 
-    @Test
-    public void testIsValidWord() {
-        assertTrue(gameLogic.isValidWord("RedWord"));
-        assertFalse(gameLogic.isValidWord("BlueWord"));
-    }
 
     @Test
     public void testCheckColumns() {

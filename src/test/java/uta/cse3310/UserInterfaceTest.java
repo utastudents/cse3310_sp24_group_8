@@ -11,7 +11,10 @@ public class UserInterfaceTest {
         UserInterface userInterface = new UserInterface(true);
         
         // Verify that getReadyUp returns true
-        assertTrue(userInterface.getReadyUp());
+        assertTrue(userInterface.getReadyUp()); // Checks if readyUp is true
+
+        userInterface.setReadyUp(false);
+        assertFalse(userInterface.getReadyUp()); 
     }
 
     @Test
