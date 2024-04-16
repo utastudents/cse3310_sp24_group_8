@@ -3,6 +3,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import java.util.List;
+import java.util.Map;
 
 public class LeaderboardTest {
 
@@ -27,16 +28,19 @@ public class LeaderboardTest {
     public void testAddOrUpdatePlayer() {
         // Check if players are added correctly
         assertEquals(3, leaderboard.getSortedPlayers().size());
-        // Update an existing player's score
+
         leaderboard.addOrUpdatePlayer(player1, 200);
-        assertEquals(Integer.valueOf(200), leaderboard.getPlayerScores().get(player1));
+
+        // Update an existing player's score
+        Map<PlayerType, Integer> scores = leaderboard.getPlayerScores();
+        assertEquals(Integer.valueOf(200), scores.get(player1));
     }
 
     @Test
     public void testGetSortedPlayers() {
         List<PlayerType> sortedPlayers = leaderboard.getSortedPlayers();
-        assertEquals("Erik", sortedPlayers.get(0).getNickname()); // Anthony should be first with the highest score
-        assertEquals("Anthony", sortedPlayers.get(1).getNickname()); // Erik second
+        assertEquals("Anthony", sortedPlayers.get(0).getNickname()); // Anthony should be first with the highest score
+        assertEquals("Erik", sortedPlayers.get(1).getNickname()); // Erik second
         assertEquals("Brianna", sortedPlayers.get(2).getNickname()); // Brianna last
     }
 
