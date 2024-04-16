@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 package uta.cse3310;
 
 import java.util.Map;
@@ -47,3 +48,26 @@ public class Leaderboard {
         playerScores.clear();
     }
 }
+=======
+package uta.cse3310;
+
+import java.util.*; 
+
+public class Leaderboard {
+
+        List<PlayerType> players;
+        int finalGameStats;
+
+        public Leaderboard(int finalGameStats) {
+                players = new ArrayList<>();
+                finalGameStats = finalGameStats;
+        }
+
+        public void display() {
+        }
+
+        public void reset() {
+        }
+
+}
+>>>>>>> d4a26a4acd497beded5d5a30fc9a006f7ff61103
