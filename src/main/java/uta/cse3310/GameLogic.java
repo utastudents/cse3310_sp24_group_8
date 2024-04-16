@@ -18,6 +18,7 @@ public class GameLogic {
 
     public GameLogic(PlayerType players) {
         this.players = players;
+        this.wordGrid = new char[50][50]; 
     }
 
     public int getGameId() {
@@ -76,7 +77,6 @@ public class GameLogic {
 
     // Logic to generate the game grid based on parameters
     public void gridGenerator() {
-        wordGrid = new char[50][50]; // Assuming fixed grid size
         Random random = new Random();
         for (int i = 0; i < wordGrid.length; i++) {
             for (int j = 0; j < wordGrid[i].length; j++) {
