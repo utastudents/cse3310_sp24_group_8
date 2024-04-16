@@ -20,7 +20,7 @@ public class GameLogic {
 
     public GameLogic(PlayerType players) {
         this.players = players;
-        this.wordGrid = new char[50][50]; 
+        this.wordGrid = new char[50][50];
     }
 
     public int getGameId() {
@@ -39,6 +39,7 @@ public class GameLogic {
         return wordGrid;
     }
 
+    // Method to set words from a file hosted on a URL
     public void setWordsFromFile(String url) {
         List<String> wordsList = new ArrayList<>();
         try {
@@ -57,7 +58,6 @@ public class GameLogic {
 
         randomWords = wordsList.toArray(new String[0]);
     }
-
 
     // Method to generate random words
     public void generateRandomWords(int wordCount) {
@@ -105,5 +105,102 @@ public class GameLogic {
     // Logic to check if the selected word is valid for the player
     public boolean isValidWord(String word) {
         return word.startsWith(players.getColor());
+    }
+
+    // Method to check if the specified word exists in the rows
+    public boolean checkRows(String word) {
+        for (int i = 0; i < wordGrid.length; i++) {
+            String row = new String(wordGrid[i]);
+            if (row.contains(word)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Method to check if the specified word exists in the columns
+    public boolean checkColumns(String word) {
+        for (int i = 0; i < wordGrid[0].length; i++) {
+            StringBuilder column = new StringBuilder();
+            for (int j = 0; j < wordGrid.length; j++) {
+                column.append(wordGrid[j][i]);
+            }
+            if (column.toString().contains(word)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Method to check if the specified word exists in the diagonals
+public boolean checkDiagonals(String word) {
+    // Check main diagonal (top-left to bottom-right)
+    StringBuilder mainDiagonal = new StringBuilder();
+    for (int i = 0; i < wordGrid.length; i++) {
+        mainDiagonal.append(wordGrid[i][i]);
+    }
+    if (mainDiagonal.toString().contains(word)) {
+        return true;
+    }
+
+    // Check secondary diagonal (top-right to bottom-left)
+    StringBuilder secondaryDiagonal = new StringBuilder();
+    for (int i = 0; i < wordGrid.length; i++) {
+        secondaryDiagonal.append(wordGrid[i][wordGrid.length - 1 - i]);
+    }
+    if (secondaryDiagonal.toString().contains(word)) {
+        return true;
+    }
+
+    return false;
+}
+
+
+    // Calculate points based on word length
+    public int calculatePoints(String word) {
+        int length = word.length();
+        switch (length) {
+            case 3:
+                return 50;
+            case 4:
+                return 60;
+            case 5:
+                return 70;
+            case 6:
+                return 80;
+            case 7:
+                return 90;
+            case 8:
+                return 100;
+            case 9:
+                return 110;
+            case 10:
+                return 120;
+            case 11:
+                return 130;
+            case 12:
+                return 140;
+            case 13:
+                return 150;
+            case 14:
+                return 160;
+            case 15:
+                return 170;
+            default:
+                return 0; // Invalid word length
+        }
+    }
+    
+
+    // Method to check if the highlighted word matches any word in the word list
+    public int checkWord(String word) {
+        for (String randomWord : randomWords) {
+            if (word.equalsIgnoreCase(randomWord)) {
+                // Calculate points based on word length
+                int points = calculatePoints(word);
+                return points;
+            }
+        }
+        return 0;
     }
 }
