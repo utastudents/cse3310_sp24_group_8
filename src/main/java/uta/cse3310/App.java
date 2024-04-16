@@ -137,4 +137,19 @@ public class App extends WebSocketServer {
         app.start();
         System.out.println("WebSocket Server started on port: " + webSocketPort);
     }
+
+    public Object getLobby() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getLobby'");
+    }
+
+    public Object getGameId() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getGameId'");
+    }
+
+    public void setGameId(int i) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setGameId'");
+    }
 }
