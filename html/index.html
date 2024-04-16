@@ -53,6 +53,10 @@
             margin-top: 20px;
             font-size: 18px;
         }
+
+        #ready-button {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -60,9 +64,9 @@
         <label for="username">Username:</label>
         <input type="text" id="username" maxlength="20">
         <button id="joinButton">Join Game</button>
-        <button id="readyButton" style="display: none;">Ready Up</button>
         <div id="lobby-status">Waiting for players...</div>
         <div id="players-in-lobby">Players in Lobby:</div>
+        <button id="ready-button">Ready Up</button> <!-- Ready Up button -->
         <label id="topMessage"></label>
         <table id="wordSearchBoard" style="display:none;"></table>
         <label id="bottomMessage"></label>
@@ -89,7 +93,6 @@
                 document.getElementById("lobby-status").innerHTML = "Waiting for other players...";
             } else if (msg.action === "join") {
                 document.getElementById("lobby-status").innerHTML = "Joined the game!";
-                document.getElementById("readyButton").style.display = "inline"; // Show ready button after joining
             }
         };
 
@@ -112,11 +115,11 @@
             }
         });
 
-        // Add event listener for the Ready Up button
-        document.getElementById("readyButton").addEventListener("click", function() {
-            // Send a message to the server indicating that the player is ready
+        // Event listener for the Ready Up button
+        document.getElementById("ready-button").addEventListener("click", function() {
             connection.send(JSON.stringify({ action: "ready" }));
-            document.getElementById("readyButton").disabled = true; // Disable the button after clicking
+            // Optionally, you can disable the button after clicking
+            document.getElementById("ready-button").disabled = true;
         });
     </script>
 </body>
