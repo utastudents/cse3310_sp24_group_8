@@ -1,38 +1,67 @@
 package uta.cse3310;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+public class AppTest {
+    private App app;
+
+    @Before
+    public void setUp() {
+        app = new App(8080); // Assuming 8080 is the port for WebSocket server
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+    @Test
+    public void testConstructor() {
+        assertNotNull(app);
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    @Test
+    public void testGetGameId() {
+        assertEquals(1, app.getGameId());
+    }
+
+    @Test
+    public void testSetGameId() {
+        app.setGameId(2);
+        assertEquals(2, app.getGameId());
+    }
+
+    @Test
+    public void testGetGame() {
+        Assert.assertNotNull(null, app.resetGame());
+    }
+
+    private void assertNotNull(Object resetGame) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'assertNotNull'");
+    }
+
+    @Test
+    public void testSetGame() {
+        Game game = new Game();
+        app.setGameId(game);
+        assertEquals(game, app.resetGame());
+    }
+
+    @Test
+    public void testGetLobby() {
+        assertNotNull(app.getLobby());
+    }
+
+    @Test
+    public void testSetLobby() {
+        Lobby lobby = new Lobby();
+        app.setLobby(lobby);
+        assertEquals(lobby, app.getLobby());
+    }
+
+    @Test
+    public void testGetConnections() {
+        assertNotNull(app.getConnections());
     }
 }
