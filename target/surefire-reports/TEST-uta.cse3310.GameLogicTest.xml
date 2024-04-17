@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="uta.cse3310.AppTest" time="0.001" tests="1" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" name="uta.cse3310.GameLogicTest" time="0.823" tests="11" errors="0" skipped="0" failures="0">
   <properties>
     <property name="sun.desktop" value="gnome"/>
     <property name="awt.toolkit" value="sun.awt.X11.XToolkit"/>
@@ -58,5 +58,15 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="55.0"/>
   </properties>
-  <testcase name="testApp" classname="uta.cse3310.AppTest" time="0"/>
+  <testcase name="testCalculatePoints" classname="uta.cse3310.GameLogicTest" time="0"/>
+  <testcase name="testGridGenerator" classname="uta.cse3310.GameLogicTest" time="0"/>
+  <testcase name="testIsValidWord" classname="uta.cse3310.GameLogicTest" time="0"/>
+  <testcase name="testCalculateFillerPercentage" classname="uta.cse3310.GameLogicTest" time="0"/>
+  <testcase name="testCheckWord" classname="uta.cse3310.GameLogicTest" time="0.747"/>
+  <testcase name="testSetWordsFromURL" classname="uta.cse3310.GameLogicTest" time="0.025"/>
+  <testcase name="testGenerateFillerDensity" classname="uta.cse3310.GameLogicTest" time="0"/>
+  <testcase name="testGameStart" classname="uta.cse3310.GameLogicTest" time="0.049"/>
+  <testcase name="testCheckDiagonals" classname="uta.cse3310.GameLogicTest" time="0.001"/>
+  <testcase name="testCheckColumns" classname="uta.cse3310.GameLogicTest" time="0.001"/>
+  <testcase name="testGenerateRandomWords" classname="uta.cse3310.GameLogicTest" time="0"/>
 </testsuite>

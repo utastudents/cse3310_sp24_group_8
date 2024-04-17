@@ -10,6 +10,7 @@
             background-color: #f0f0f0;
             margin: 0;
             padding: 0;
+            position: relative;
         }
 
         #lobby-container {
@@ -69,6 +70,14 @@
             font-weight: bold;
         }
 
+        #grid-info {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 5px 20px;
+            border-radius: 5px;
+        }
+
     </style>
 </head>
 <body>
@@ -89,6 +98,11 @@
         <table id="game-grid" style="margin: auto;"></table>
         <h3>Leaderboard</h3>
         <div id="leaderboard"></div>
+    </div>
+
+    <!-- Grid Info -->
+    <div> 
+        <div id="grid-info">Grid Info:</div>
     </div>
 
     <script>
