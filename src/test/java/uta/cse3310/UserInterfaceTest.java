@@ -29,6 +29,18 @@ public class UserInterfaceTest {
         assertTrue(userInterface.getReadyUp());
     }
 
+    @Test
+    public void testUnReadyUp(){
+        // Create a UserInterface object with readyUp set to true
+        UserInterface userInterface = new UserInterface(true);
+
+        // Set readyUp to false
+        userInterface.setReadyUp(false);
+
+        // Verify that getReadyUp returns false after setting it to false
+        assertFalse(userInterface.getReadyUp());
+    }
+
     // Add more test methods as needed to cover other functionalities of the UserInterface class
 }
 

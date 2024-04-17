@@ -28,4 +28,9 @@ public class PlayerTypeTest {
         assertEquals(PlayerType.Status.Waiting, player.getStatus());
     }
     
+    @Test
+    public void checkPlayerIsPlaying() {
+        PlayerType player = new PlayerType("Anthony", "Green", PlayerType.Status.Playing);
+        assertEquals(PlayerType.Status.Playing, player.getStatus());
+    }
 }
