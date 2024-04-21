@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Multiplayer Word Search Game</title>
     <style>
-        /* Add your CSS styles here */
+        /* Your CSS styles */
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
@@ -78,6 +78,7 @@
             border-radius: 5px;
         }
 
+        /* Additional CSS styles can go here */
     </style>
 </head>
 <body>
@@ -145,33 +146,36 @@
         };
 
         function setupGameScreen(grid, players) {
-            document.getElementById('lobby-container').style.display = 'none'; // Hide lobby
-            document.getElementById('game-container').style.display = 'block'; // Show game screen
+                document.getElementById('lobby-container').style.display = 'none'; // Hide lobby
+                document.getElementById('game-container').style.display = 'block'; // Show game screen
 
-            var gridTable = document.getElementById('game-grid');
-            gridTable.innerHTML = '';
-            grid.forEach(row => {
-                var tr = document.createElement('tr');
-                row.split('').forEach(char => {
-                    var td = document.createElement('td');
-                    td.textContent = char;
-                    tr.appendChild(td);
+                var gridTable = document.getElementById('game-grid');
+                gridTable.innerHTML = '';
+
+                // Create a 2x2 grid for the game
+                for (let i = 0; i < 2; i++) {
+                    var tr = document.createElement('tr');
+                    for (let j = 0; j < 2; j++) {
+                        var td = document.createElement('td');
+                        var char = grid[i * 2 + j];
+                        td.textContent = char;
+                        tr.appendChild(td);
+                    }
+                    gridTable.appendChild(tr);
+                }
+            }
+
+
+            function updateLeaderboard(players) {
+                var leaderboardDiv = document.getElementById('leaderboard');
+                leaderboardDiv.innerHTML = '';
+                players.forEach(function (player) {
+                    var entry = document.createElement('div');
+                    entry.textContent = player.nickname + ': ' + player.score + (player.isReady ? ' (Ready)' : '');
+                    leaderboardDiv.appendChild(entry); // Corrected: Changed 'leaderboard' to 'leaderboardDiv'
                 });
-                gridTable.appendChild(tr);
-            });
+            }
 
-            updateLeaderboard(players);
-        }
-
-        function updateLeaderboard(players) {
-            var leaderboardDiv = document.getElementById('leaderboard');
-            leaderboardDiv.innerHTML = '';
-            players.forEach(function(player) {
-                var entry = document.createElement('div');
-                entry.textContent = player.nickname + ': ' + player.score + (player.isReady ? ' (Ready)' : '');
-                leaderboard.appendChild(entry);
-            });
-        }
 
         function displayGameGrid(grid) {
             var table = document.getElementById('game-grid');
