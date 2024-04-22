@@ -151,11 +151,11 @@
                 gridTable.innerHTML = '';
 
                 // Create a 2x2 grid for the game
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < 50; i++) {
                     var tr = document.createElement('tr');
-                    for (let j = 0; j < 2; j++) {
+                    for (let j = 0; j < 50; j++) {
                         var td = document.createElement('td');
-                        var char = grid[i * 2 + j];
+                        var char = grid[i][j];
                         td.textContent = char;
                         tr.appendChild(td);
                     }
