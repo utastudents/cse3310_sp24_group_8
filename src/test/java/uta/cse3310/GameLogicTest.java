@@ -89,7 +89,7 @@ public class GameLogicTest {
     @Test
     public void testCheckColumns() {
         gameLogic.gridGenerator(); // Generate a random word grid
-        assertFalse(gameLogic.checkColumns("ARE")); // Assuming "XYZ" does not exist in any column
+        assertFalse(gameLogic.checkColumns("XYZ")); // Assuming "XYZ" does not exist in any column
     }
 
     @Test
