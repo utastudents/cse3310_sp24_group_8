@@ -109,6 +109,8 @@
         var connection = null;
         var serverUrl = "ws://" + window.location.hostname + ":9108";
         connection = new WebSocket(serverUrl);
+        var firstCell = null;
+        var lastCell = null;
         
         connection.onopen = function () {
             console.log("Connected to server");
@@ -144,35 +146,111 @@
         };
 
         function setupGameScreen(grid, players) {
-                document.getElementById('lobby-container').style.display = 'none'; // Hide lobby
-                document.getElementById('game-container').style.display = 'block'; // Show game screen
+                document.getElementById('lobby-container').style.display = 'none'; //hide lobby
+                document.getElementById('game-container').style.display = 'block'; //show game screen
 
                 var gridTable = document.getElementById('game-grid');
                 gridTable.innerHTML = '';
 
-                // Create a 2x2 grid for the game
-                for (let i = 0; i < 50; i++) {
+                for (let i = 0; i < grid.length; i++) {
                     var tr = document.createElement('tr');
-                    for (let j = 0; j < 50; j++) {
+                    for (let j = 0; j < grid[i].length; j++) {
                         var td = document.createElement('td');
-                        var char = grid[i][j];
-                        td.textContent = char;
+                        td.textContent = grid[i][j];
+                        td.dataset.row = i.toString();
+                        td.dataset.col = j.toString();
+                        td.addEventListener('click', handleCellClick);
                         tr.appendChild(td);
                     }
                     gridTable.appendChild(tr);
                 }
+        }
+
+        function handleCellClick(event) {
+            var cell = event.target;
+            //this is first cell if no cell has been clicked
+            if (!firstCell) {
+                if (lastCell) {
+                    resetHighlights();
+                }
+                firstCell = cell;
+                cell.style.backgroundColor = 'yellow';
+                console.log("First cell selected", firstCell.dataset.row, firstCell.dataset.col);
+
+                } else if (!lastCell && firstCell !== cell) {
+                lastCell = cell;
+                highlightWord();
+            } else {
+                resetHighlights();
+                firstCell = cell;
+                lastCell = null;
+                cell.style.backgroundColor = 'yellow';
+                console.log("First cell reselected", firstCell.dataset.row, firstCell.dataset.col);
             }
+        }
+
+        function resetHighlights() {
+            var cells = document.querySelectorAll('#game-grid td');
+            cells.forEach(cell => {
+                cell.style.backgroundColor = ''; // Clear the background color
+            });
+            firstCell = null;
+            lastCell = null;
+        }
+
+        function highlightWord() {
+            if (firstCell && lastCell && areCellsAligned(firstCell, lastCell)) {
+                let startRow = parseInt(firstCell.dataset.row);
+                let startCol = parseInt(firstCell.dataset.col);
+                let endRow = parseInt(lastCell.dataset.row);
+                let endCol = parseInt(lastCell.dataset.col);
+                let rowIncrement = endRow === startRow ? 0 : (endRow > startRow ? 1 : -1);
+                let colIncrement = endCol === startCol ? 0 : (endCol > startCol ? 1 : -1);
+
+                let row = startRow, col = startCol;
+                while (row !== endRow + rowIncrement || col !== endCol + colIncrement) {
+                    document.querySelector(`td[data-row="${row}"][data-col="${col}"]`).style.backgroundColor = 'lightblue';
+                    row += rowIncrement;
+                    col += colIncrement;
+                }
+
+                //reset selections
+                firstCell = null;
+                lastCell = null;
+            } else {
+        //clear selection if logic not met
+                if (firstCell) firstCell.style.backgroundColor = '';
+                if (lastCell) lastCell.style.backgroundColor = '';
+                firstCell = null;
+                lastCell = null;
+            }
+        }
 
 
-            function updateLeaderboard(players) {
-                var leaderboardDiv = document.getElementById('leaderboard');
-                leaderboardDiv.innerHTML = '';
-                players.forEach(function (player) {
-                    var entry = document.createElement('div');
-                    entry.textContent = player.nickname + ': ' + player.score + (player.isReady ? ' (Ready)' : '');
-                    leaderboardDiv.appendChild(entry); // Corrected: Changed 'leaderboard' to 'leaderboardDiv'
-                });
-            }
+        function areCellsAligned(firstCell, lastCell) {
+            //checks if the cells are in a straight line (horizontal, vertical, diagonal)
+            let startRow = parseInt(firstCell.dataset.row);
+            let startCol = parseInt(firstCell.dataset.col);
+            let endRow = parseInt(lastCell.dataset.row);
+            let endCol = parseInt(lastCell.dataset.col);
+
+
+            if (startRow === endRow || startCol === endCol) return true;
+            if (Math.abs(endRow - startRow) === Math.abs(endCol - startCol)) return true;
+            return false;
+        }
+
+
+
+        function updateLeaderboard(players) {
+            var leaderboardDiv = document.getElementById('leaderboard');
+            leaderboardDiv.innerHTML = '';
+            players.forEach(function (player) {
+                var entry = document.createElement('div');
+                entry.textContent = player.nickname + ': ' + player.score + (player.isReady ? ' (Ready)' : '');
+                leaderboardDiv.appendChild(entry); // Corrected: Changed 'leaderboard' to 'leaderboardDiv'
+            });
+        }
 
 
         function displayGameGrid(grid) {
