@@ -84,7 +84,7 @@
         <label for="username">Username:</label>
         <input type="text" id="username" maxlength="20">
         <button id="joinButton">Join Game</button>
-        <div id="lobby-status">Waiting for players...</div>
+        <div id="lobby-status">Not in lobby yet</div>
         <div id="players-in-lobby">Players in Lobby:</div>
         <button id="ready-button">Ready Up</button> <!-- Ready Up button -->
         <label id="topMessage"></label>
@@ -285,7 +285,10 @@
                     username: username
                 };
                 connection.send(JSON.stringify(joinRequest));
-                document.getElementById("lobby-status").innerHTML = "Trying to join the game...";
+                var lobbyStatus = document.getElementById("lobby-status").innerHTML;
+                if (lobbyStatus === "Not in lobby yet") {
+                    document.getElementById("lobby-status").innerHTML = "Joined Lobby!";
+                }
             } else {
                 alert("Please enter a username.");
             }
