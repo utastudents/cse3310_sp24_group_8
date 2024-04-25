@@ -26,7 +26,7 @@ public class GameLogic {
 
     public GameLogic(List<PlayerType> players, Broadcast broadcaster) {
         this.players = players;
-        this.wordGrid = new char[40][40];
+        this.wordGrid = new char[35][35];
         this.broadcaster = broadcaster;
         this.validWords = new ArrayList<>();
     }
