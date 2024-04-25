@@ -74,8 +74,8 @@ public class GameLogicTest {
         gameLogic.gridGenerator();
         char[][] wordGrid = gameLogic.getWordGrid();
         assertNotNull(wordGrid);
-        assertEquals(40, wordGrid.length);
-        assertEquals(40, wordGrid[0].length);
+        assertEquals(35, wordGrid.length);
+        assertEquals(35, wordGrid[0].length);
     }
 
     @Test
