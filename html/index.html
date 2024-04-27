@@ -102,26 +102,26 @@
         </div>
     </div>
 
-
     <script>
-        var gameId = -1;
         var connection = null;
         var serverUrl = "ws://" + window.location.hostname + ":9108";
         connection = new WebSocket(serverUrl);
-        var firstCell = null;
-        var lastCell = null;
-        
+
         connection.onopen = function () {
             console.log("Connected to server");
         };
 
-        connection.onclose = function () {
-            document.getElementById("topMessage").innerHTML = "Server Offline";
+        connection.onerror = function(error) {
+            console.error("WebSocket error: ", error);
         };
 
         connection.onmessage = function (evt) {
+            handleMessage(evt.data);
+        };
+
+        function handleMessage(data) {
             try {
-                var msg = JSON.parse(evt.data);
+                var msg = JSON.parse(data);
                 switch (msg.action) {
                     case "updateLobby":
                         updateLobby(msg.players);
@@ -129,40 +129,33 @@
                     case "startGame":
                         setupGameScreen(msg.grid, msg.players);
                         break;
-                    case "join":
-                        document.getElementById("lobby-status").innerHTML = "Joined the game!";
-                        break;
-                    case "lobbyFull":
-                        document.getElementById("lobby-status").innerHTML = "Lobby is full!";
-                        document.getElementById("joinButton").disabled = true;
-                        break;
                     default:
                         console.log("Received unknown action type:", msg.action);
                 }
             } catch (error) {
                 console.error("Error handling message from server:", error);
             }
-        };
+        }
 
         function setupGameScreen(grid, players) {
-                document.getElementById('lobby-container').style.display = 'none'; //hide lobby
-                document.getElementById('game-container').style.display = 'block'; //show game screen
+            document.getElementById('lobby-container').style.display = 'none'; //hide lobby
+            document.getElementById('game-container').style.display = 'block'; //show game screen
 
-                var gridTable = document.getElementById('game-grid');
-                gridTable.innerHTML = '';
+            var gridTable = document.getElementById('game-grid');
+            gridTable.innerHTML = '';
 
-                for (let i = 0; i < grid.length; i++) {
-                    var tr = document.createElement('tr');
-                    for (let j = 0; j < grid[i].length; j++) {
-                        var td = document.createElement('td');
-                        td.textContent = grid[i][j];
-                        td.dataset.row = i.toString();
-                        td.dataset.col = j.toString();
-                        td.addEventListener('click', handleCellClick);
-                        tr.appendChild(td);
-                    }
-                    gridTable.appendChild(tr);
+            for (let i = 0; i < grid.length; i++) {
+                var tr = document.createElement('tr');
+                for (let j = 0; j < grid[i].length; j++) {
+                    var td = document.createElement('td');
+                    td.textContent = grid[i][j];
+                    td.dataset.row = i.toString();
+                    td.dataset.col = j.toString();
+                    td.addEventListener('click', handleCellClick);
+                    tr.appendChild(td);
                 }
+                gridTable.appendChild(tr);
+            }
         }
 
         function handleCellClick(event) {
@@ -176,7 +169,7 @@
                 cell.style.backgroundColor = 'yellow';
                 console.log("First cell selected", firstCell.dataset.row, firstCell.dataset.col);
 
-                } else if (!lastCell && firstCell !== cell) {
+            } else if (!lastCell && firstCell !== cell) {
                 lastCell = cell;
                 highlightWord();
             } else {
@@ -217,14 +210,13 @@
                 firstCell = null;
                 lastCell = null;
             } else {
-        //clear selection if logic not met
+                //clear selection if logic not met
                 if (firstCell) firstCell.style.backgroundColor = '';
                 if (lastCell) lastCell.style.backgroundColor = '';
                 firstCell = null;
                 lastCell = null;
             }
         }
-
 
         function areCellsAligned(firstCell, lastCell) {
             //checks if the cells are in a straight line (horizontal, vertical, diagonal)
@@ -233,47 +225,9 @@
             let endRow = parseInt(lastCell.dataset.row);
             let endCol = parseInt(lastCell.dataset.col);
 
-
             if (startRow === endRow || startCol === endCol) return true;
             if (Math.abs(endRow - startRow) === Math.abs(endCol - startCol)) return true;
             return false;
-        }
-
-
-
-        function updateLeaderboard(players) {
-            var leaderboardDiv = document.getElementById('leaderboard');
-            leaderboardDiv.innerHTML = '';
-            players.forEach(function (player) {
-                var entry = document.createElement('div');
-                entry.textContent = player.nickname + ': ' + player.score;
-                leaderboardDiv.appendChild(entry);
-            });
-        }
-
-        function updateWordList(words) {
-            var wordListDiv = document.getElementById('word-list');
-            wordListDiv.innerHTML = '';
-            words.forEach(function (word) {
-                var entry = document.createElement('div');
-                entry.textContent = word;
-                wordListDiv.appendChild(entry);
-            });
-        }
-
-
-        function displayGameGrid(grid) {
-            var table = document.getElementById('game-grid');
-            table.innerHTML = '';  // Clear previous grid
-            grid.forEach(function(row) {
-                var tr = document.createElement('tr');
-                row.forEach(function(cell) {
-                    var td = document.createElement('td');
-                    td.textContent = cell;  // Assuming each cell is a single character
-                    tr.appendChild(td);
-                });
-                table.appendChild(tr);
-            });
         }
 
         function updateLobby(players) {
@@ -282,7 +236,7 @@
                 var color = player.isReady ? 'green' : 'red'; // Green for ready, red for not ready
                 playersList += `<span style="color: ${color};">${player.nickname}</span>, `;
             });
-            
+
             document.getElementById("players-in-lobby").innerHTML = playersList.slice(0, -2);
         }
 
@@ -303,42 +257,10 @@
             }
         });
 
-        // Event listener for the Ready Up button
         document.getElementById("ready-button").addEventListener("click", function() {
             connection.send(JSON.stringify({ action: "ready" }));
-            // Optionally, you can disable the button after clicking
             document.getElementById("ready-button").disabled = true;
         });
-
-        // Function to highlight a word in the grid with the player's chosen color
-        function highlightWord(word, color) {
-            // Add code here to highlight the word in the grid with the specified color
-            console.log("Highlighting word '" + word + "' with color: " + color);
-        }
-        
-        
-        window.onload = function() {
-            // Create a WebSocket connection to the server
-            var serverUrl = "ws://" + window.location.hostname + ":9108";
-            var connection = new WebSocket(serverUrl);
-
-            // When the connection is opened
-            connection.onopen = function () {
-                console.log("Connected to server");
-                // Send a message to the server to clear the queue
-                connection.send(JSON.stringify({ action: "clearQueue" }));
-            };
-
-            // Handle messages from the server
-            connection.onmessage = function (evt) {
-                // Handle messages from the server if needed
-            };
-
-            // Handle connection errors
-            connection.onerror = function(error) {
-                console.error("WebSocket error: ", error);
-            };
-        };
     </script>
 </body>
 </html>
