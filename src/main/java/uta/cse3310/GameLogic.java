@@ -7,8 +7,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -18,6 +21,8 @@ public class GameLogic {
     private List<PlayerType> players;
     private Broadcast broadcaster;
     List<String> validWords;
+    private List<String> allWords;
+    
 
     private int gameId;
     private char[][] wordGrid;
@@ -39,29 +44,36 @@ public class GameLogic {
         this.gameId = gameId;
     }
 
-    public void setWordGrid(char[][] wordGrid) {
-        this.wordGrid = wordGrid;
+    public void setRandomWords(String[] words) {
+        this.randomWords = words;
     }
 
     public char[][] getWordGrid() {
         return wordGrid;
     }
 
+    public String[] getRandomWords() {
+        return randomWords;
+    }
+
     public JSONArray serializePlayers() {
         JSONArray playersArray = new JSONArray();
-        for (PlayerType player : players) {  // Assuming 'players' is a List<PlayerType>
+        for (PlayerType player : players) {
             JSONObject playerObject = new JSONObject();
             playerObject.put("nickname", player.getNickname());
             playerObject.put("isReady", player.getStatus() == PlayerType.Status.Playing);
-            playerObject.put("score", player.getScore());  // Assuming there is a getScore method
+            playerObject.put("score", player.getScore());
             playersArray.put(playerObject);
         }
+        System.out.println("Serializing players: " + playersArray.toString()); // Log the serialized output
         return playersArray;
     }
 
 
-    void startGame() {
+    public void startGame() {
         initializeGame();
+        selectRandomWords(20); // Ensure this actually selects words
+        System.out.println("Random words selected: " + Arrays.toString(randomWords)); // Log selected words
         broadcaster.broadcast("Game starts now!");
         JSONObject startGameMessage = new JSONObject();
         try {
@@ -69,14 +81,16 @@ public class GameLogic {
             for (char[] row : wordGrid) {
                 gridArray.put(new String(row));
             }
+            JSONArray playersJson = serializePlayers(); // Check player serialization
+            System.out.println("Serialized players: " + playersJson.toString()); // Log player data
+    
             startGameMessage.put("action", "startGame");
             startGameMessage.put("grid", gridArray);
-            startGameMessage.put("players", serializePlayers()); // Assuming a method to serialize player data
+            startGameMessage.put("players", playersJson);
             broadcaster.broadcast(startGameMessage.toString());
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        System.out.println("Game started with grid and player info sent to all players.");
     }
 
     private void initializeGame() {
@@ -86,7 +100,6 @@ public class GameLogic {
         System.out.println("Game initialized."); 
     }
 
-    // Method to set words from a file hosted on a URL
     public void setWordsFromFile(String url) {
         List<String> wordsList = new ArrayList<>();
         try {
@@ -103,7 +116,69 @@ public class GameLogic {
             e.printStackTrace();
         }
 
-        randomWords = wordsList.toArray(new String[0]);
+        this.allWords = wordsList;
+        System.out.println("Fetched " + wordsList.size() + " words from file.");
+    }
+
+
+    public void setWordGrid(List<String> list) {
+        int rows = list.size();
+        if (rows == 0) {
+            this.wordGrid = new char[0][0]; // Handle the case where the list is empty
+            return;
+        }
+
+        int cols = list.get(0).length(); // Assumes all strings are the same length
+
+        this.wordGrid = new char[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            String rowString = list.get(i);
+            for (int j = 0; j < cols; j++) {
+                if (j < rowString.length()) { // Ensure there's a character at position j
+                    this.wordGrid[i][j] = rowString.charAt(j);
+                } else {
+                    this.wordGrid[i][j] = ' '; // Optionally fill shorter strings with spaces
+                }
+            }
+        }
+    }
+
+
+    public void selectRandomWords(int numberOfWords) {
+        Random random = new Random();
+        Set<String> selectedWords = new HashSet<>();
+        while (selectedWords.size() < numberOfWords && selectedWords.size() < allWords.size()) {
+            selectedWords.add(allWords.get(random.nextInt(allWords.size())));
+        }
+        randomWords = selectedWords.toArray(new String[0]);
+        System.out.println("Selected " + randomWords.length + " random words for the game.");
+    }
+
+    public List<String> getCurrentWordList() {
+        return Arrays.asList(randomWords);
+    }
+
+    public void updatePlayerScore(String nickname, int scoreToAdd) {
+        for (PlayerType player : players) {
+            if (player.getNickname().equals(nickname)) {
+                player.setScore(player.getScore() + scoreToAdd);
+                break;
+            }
+        }
+    }
+
+    public JSONObject getCurrentScores() throws JSONException {
+        JSONObject scores = new JSONObject();
+        JSONArray scoresArray = new JSONArray();
+        for (PlayerType player : players) {
+            JSONObject scoreDetail = new JSONObject();
+            scoreDetail.put("nickname", player.getNickname());
+            scoreDetail.put("score", player.getScore());
+            scoresArray.put(scoreDetail);
+        }
+        scores.put("scores", scoresArray);
+        return scores;
     }
 
     // Method to generate random words
@@ -116,9 +191,6 @@ public class GameLogic {
         }
     }
 
-    public String[] getRandomWords() {
-        return randomWords;
-    }
 
     // Method to generate random filler density
     public void generateFillerDensity() {

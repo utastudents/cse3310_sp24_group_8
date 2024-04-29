@@ -2,6 +2,7 @@ package uta.cse3310;
 
     import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -58,13 +59,19 @@ public class App extends WebSocketServer implements Broadcast {
         try {
             JSONObject msg = new JSONObject(message);
             String action = msg.getString("action");
-            
+
             switch (action) {
                 case "join":
                     handleJoin(conn, msg);
                     break;
                 case "ready":
                     handleReady(conn, msg);
+                    break;
+                case "updateScores":
+                    handleUpdateScores(conn, msg);
+                    break;
+                case "updateWords":
+                    handleUpdateWords(conn, msg);
                     break;
                 default:
                     System.out.println("Unknown action: " + action);
@@ -81,8 +88,9 @@ public class App extends WebSocketServer implements Broadcast {
         String color = msg.has("color") ? msg.getString("color") : "defaultColor";
         PlayerType player = new PlayerType(username, color, PlayerType.Status.Waiting);
         if (lobby.addPlayer(player)) {
-            connectionPlayerMap.put(conn, player); // Link the connection to the player
-            System.out.println(username + " added to the lobby.");
+            connectionPlayerMap.put(conn, player);
+            players.add(player);
+            System.out.println(username + " added to the lobby. Total players now: " + players.size());
             broadcastLobbyUpdate();
         } else {
             conn.send(new JSONObject().put("action", "lobbyFull").toString());
@@ -93,11 +101,36 @@ public class App extends WebSocketServer implements Broadcast {
         PlayerType player = connectionPlayerMap.get(conn);
         if (player != null) {
             player.setStatus(PlayerType.Status.Playing);
+            System.out.println(player.getNickname() + " is now ready.");
             broadcastLobbyUpdate();
             checkAllPlayersReady();
         }
     }
 
+
+    private void handleUpdateScores(WebSocket conn, JSONObject msg) throws JSONException {
+        JSONObject scores = gameLogic.getCurrentScores();
+        scores.put("action", "updateScores");
+        broadcast(scores.toString());
+    }
+
+    private void handleUpdateWords(WebSocket conn, JSONObject msg) throws JSONException {
+        try {
+            String[] words = gameLogic.getRandomWords(); // Correctly access random words
+            if (words == null || words.length == 0) {
+                System.out.println("Random words array is empty or not initialized!");
+                return;
+            }
+
+            JSONArray wordsArray = new JSONArray(Arrays.asList(words));
+            JSONObject response = new JSONObject();
+            response.put("action", "updateWords");
+            response.put("words", wordsArray);
+            broadcast(response.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     private void checkAllPlayersReady() {

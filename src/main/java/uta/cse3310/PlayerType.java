@@ -50,4 +50,8 @@ public class PlayerType {
         this.status = status;
     }
 
+    public void setScore(int score) {
+        this.score = score; 
+    }
+
 }
