@@ -89,7 +89,7 @@
         <div style="display: flex; justify-content: space-around; align-items: start;">
             <div id="leaderboard" style="width: 20%;">
                 <h3>Leaderboard</h3>
-                <!-- Player scores will be listed here -->
+                
             </div>
             <div style="width: 50%;">
                 <h2>Word Search Game</h2>
@@ -97,7 +97,7 @@
             </div>
             <div id="word-list" style="width: 20%;">
                 <h3>Current Words</h3>
-                <!-- List of words will be displayed here -->
+                
             </div>
         </div>
     </div>
@@ -118,18 +118,21 @@
         };
 
         connection.onmessage = function (evt) {
-            handleMessage(evt.data);
-        };
-
-        function handleMessage(data) {
             try {
-                var msg = JSON.parse(data);
+                var msg = JSON.parse(evt.data);
                 switch (msg.action) {
                     case "updateLobby":
                         updateLobby(msg.players);
                         break;
                     case "startGame":
                         setupGameScreen(msg.grid, msg.players);
+                        break;
+                    case "join":
+                        document.getElementById("lobby-status").innerHTML = "Joined the game!";
+                        break;
+                    case "lobbyFull":
+                        document.getElementById("lobby-status").innerHTML = "Lobby is full!";
+                        document.getElementById("joinButton").disabled = true;
                         break;
                     default:
                         console.log("Received unknown action type:", msg.action);
@@ -212,7 +215,7 @@
                 firstCell = null;
                 lastCell = null;
             } else {
-                //clear selection if logic not met
+        //clear selection if logic not met
                 if (firstCell) firstCell.style.backgroundColor = '';
                 if (lastCell) lastCell.style.backgroundColor = '';
                 firstCell = null;
@@ -230,6 +233,43 @@
             if (startRow === endRow || startCol === endCol) return true;
             if (Math.abs(endRow - startRow) === Math.abs(endCol - startCol)) return true;
             return false;
+        }
+
+
+
+        function updateLeaderboard(players) {
+            var leaderboardDiv = document.getElementById('leaderboard');
+            leaderboardDiv.innerHTML = '';
+            players.forEach(function (player) {
+                var entry = document.createElement('div');
+                entry.textContent = player.nickname + ': ' + player.score;
+                leaderboardDiv.appendChild(entry);
+            });
+        }
+
+        function updateWordList(words) {
+            var wordListDiv = document.getElementById('word-list');
+            wordListDiv.innerHTML = '';
+            words.forEach(function (word) {
+                var entry = document.createElement('div');
+                entry.textContent = word;
+                wordListDiv.appendChild(entry);
+            });
+        }
+
+
+        function displayGameGrid(grid) {
+            var table = document.getElementById('game-grid');
+            table.innerHTML = '';  // Clear previous grid
+            grid.forEach(function(row) {
+                var tr = document.createElement('tr');
+                row.forEach(function(cell) {
+                    var td = document.createElement('td');
+                    td.textContent = cell;  // Assuming each cell is a single character
+                    tr.appendChild(td);
+                });
+                table.appendChild(tr);
+            });
         }
 
         function updateLobby(players) {
