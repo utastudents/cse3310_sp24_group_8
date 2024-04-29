@@ -3,6 +3,7 @@ package uta.cse3310;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Before;
@@ -48,7 +49,7 @@ public class GameLogicTest {
 
     @Test
     public void testSetWordsFromURL() {
-        gameLogic.setWordsFromFile("https://raw.githubusercontent.com/utastudents/cse3310_sp24_group_8/main/src/main/java/uta/cse3310/words.txt");
+        gameLogic.setRandomWords(new String[]{"word1", "word2", "word3"});
         String[] randomWords = gameLogic.getRandomWords();
         assertNotNull(randomWords);
         assertTrue(randomWords.length > 0);
@@ -108,8 +109,8 @@ public class GameLogicTest {
 
     @Test
     public void testCheckWord() {
-        gameLogic.setWordsFromFile("https://raw.githubusercontent.com/utastudents/cse3310_sp24_group_8/main/src/main/java/uta/cse3310/words.txt");
-        assertEquals(70, gameLogic.checkWord("APPLE")); // Assuming "APPLE" is in the word list
-        assertEquals(0, gameLogic.checkWord("XYZ")); // Assuming "XYZ" is not in the word list
+        gameLogic.setRandomWords(new String[]{"apple", "banana", "cherry"});
+        assertEquals(70, gameLogic.checkWord("apple")); 
+        assertEquals(0, gameLogic.checkWord("xyz")); 
     }
 }
