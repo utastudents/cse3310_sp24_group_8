@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <title>Multiplayer Word Search Game</title>
@@ -69,9 +70,9 @@
         #leaderboard p {
             font-weight: bold;
         }
-
     </style>
 </head>
+
 <body>
     <div id="lobby-container">
         <label for="username">Username:</label>
@@ -89,7 +90,7 @@
         <div style="display: flex; justify-content: space-around; align-items: start;">
             <div id="leaderboard" style="width: 20%;">
                 <h3>Leaderboard</h3>
-                
+
             </div>
             <div style="width: 50%;">
                 <h2>Word Search Game</h2>
@@ -97,7 +98,7 @@
             </div>
             <div id="word-list" style="width: 20%;">
                 <h3>Current Words</h3>
-                
+
             </div>
         </div>
     </div>
@@ -113,7 +114,7 @@
             console.log("Connected to server");
         };
 
-        connection.onerror = function(error) {
+        connection.onerror = function (error) {
             console.error("WebSocket error: ", error);
         };
 
@@ -149,18 +150,26 @@
             var gridTable = document.getElementById('game-grid');
             gridTable.innerHTML = '';
 
-            for (let i = 0; i < grid.length; i++) {
+            // Loop through each row and column of the grid map
+            grid.forEach((row, rowIndex) => {
                 var tr = document.createElement('tr');
-                for (let j = 0; j < grid[i].length; j++) {
+                row.forEach((_, colIndex) => {
                     var td = document.createElement('td');
-                    td.textContent = grid[i][j];
-                    td.dataset.row = i.toString();
-                    td.dataset.col = j.toString();
+                    var character = getCharacterAt(rowIndex, colIndex); // Get character from grid map
+                    td.textContent = character;
+                    td.dataset.row = rowIndex.toString();
+                    td.dataset.col = colIndex.toString();
                     td.addEventListener('click', handleCellClick);
                     tr.appendChild(td);
-                }
+                });
                 gridTable.appendChild(tr);
-            }
+            });
+        }
+
+        // Function to get a character from the grid map based on coordinates
+        function getCharacterAt(row, column) {
+            var coordinates = row + "," + column;
+            return gridMap[coordinates] || ' '; // Return ' ' if no character found
         }
 
         function handleCellClick(event) {
@@ -215,7 +224,7 @@
                 firstCell = null;
                 lastCell = null;
             } else {
-        //clear selection if logic not met
+                //clear selection if logic not met
                 if (firstCell) firstCell.style.backgroundColor = '';
                 if (lastCell) lastCell.style.backgroundColor = '';
                 firstCell = null;
@@ -261,9 +270,9 @@
         function displayGameGrid(grid) {
             var table = document.getElementById('game-grid');
             table.innerHTML = '';  // Clear previous grid
-            grid.forEach(function(row) {
+            grid.forEach(function (row) {
                 var tr = document.createElement('tr');
-                row.forEach(function(cell) {
+                row.forEach(function (cell) {
                     var td = document.createElement('td');
                     td.textContent = cell;  // Assuming each cell is a single character
                     tr.appendChild(td);
@@ -282,7 +291,7 @@
             document.getElementById("players-in-lobby").innerHTML = playersList.slice(0, -2);
         }
 
-        document.getElementById("joinButton").addEventListener("click", function() {
+        document.getElementById("joinButton").addEventListener("click", function () {
             var username = document.getElementById("username").value.trim();
             if (username) {
                 var joinRequest = {
@@ -299,10 +308,11 @@
             }
         });
 
-        document.getElementById("ready-button").addEventListener("click", function() {
+        document.getElementById("ready-button").addEventListener("click", function () {
             connection.send(JSON.stringify({ action: "ready" }));
             document.getElementById("ready-button").disabled = true;
         });
     </script>
 </body>
+
 </html>

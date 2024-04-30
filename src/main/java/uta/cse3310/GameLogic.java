@@ -6,12 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,18 +17,20 @@ public class GameLogic {
     private Broadcast broadcaster;
     List<String> validWords;
     private List<String> allWords;
-    
 
     private int gameId;
     private char[][] wordGrid;
     private String[] randomWords;
     private double fillerDensity;
 
+    private Map<String, Character> gridMap; // HashMap for the grid
+
     public GameLogic(List<PlayerType> players, Broadcast broadcaster) {
         this.players = players;
         this.wordGrid = new char[35][35];
         this.broadcaster = broadcaster;
         this.validWords = new ArrayList<>();
+        this.gridMap = new HashMap<>();
     }
 
     public int getGameId() {
@@ -83,7 +80,7 @@ public class GameLogic {
             }
             JSONArray playersJson = serializePlayers(); // Check player serialization
             System.out.println("Serialized players: " + playersJson.toString()); // Log player data
-    
+
             startGameMessage.put("action", "startGame");
             startGameMessage.put("grid", gridArray);
             startGameMessage.put("players", playersJson);
@@ -97,7 +94,8 @@ public class GameLogic {
         gridGenerator();
         setWordsFromFile("https://raw.githubusercontent.com/utastudents/cse3310_sp24_group_8/main/src/main/java/uta/cse3310/words.txt");
         generateFillerDensity();
-        System.out.println("Game initialized."); 
+        initializeGridMap(); // Initialize the gridMap
+        System.out.println("Game initialized.");
     }
 
     public void setWordsFromFile(String url) {
@@ -248,27 +246,27 @@ public class GameLogic {
     }
 
     // Method to check if the specified word exists in the diagonals
-public boolean checkDiagonals(String word) {
-    // Check main diagonal (top-left to bottom-right)
-    StringBuilder mainDiagonal = new StringBuilder();
-    for (int i = 0; i < wordGrid.length; i++) {
-        mainDiagonal.append(wordGrid[i][i]);
-    }
-    if (mainDiagonal.toString().contains(word)) {
-        return true;
-    }
+    public boolean checkDiagonals(String word) {
+        // Check main diagonal (top-left to bottom-right)
+        StringBuilder mainDiagonal = new StringBuilder();
+        for (int i = 0; i < wordGrid.length; i++) {
+            mainDiagonal.append(wordGrid[i][i]);
+        }
+        if (mainDiagonal.toString().contains(word)) {
+            return true;
+        }
 
-    // Check secondary diagonal (top-right to bottom-left)
-    StringBuilder secondaryDiagonal = new StringBuilder();
-    for (int i = 0; i < wordGrid.length; i++) {
-        secondaryDiagonal.append(wordGrid[i][wordGrid.length - 1 - i]);
-    }
-    if (secondaryDiagonal.toString().contains(word)) {
-        return true;
-    }
+        // Check secondary diagonal (top-right to bottom-left)
+        StringBuilder secondaryDiagonal = new StringBuilder();
+        for (int i = 0; i < wordGrid.length; i++) {
+            secondaryDiagonal.append(wordGrid[i][wordGrid.length - 1 - i]);
+        }
+        if (secondaryDiagonal.toString().contains(word)) {
+            return true;
+        }
 
-    return false;
-}
+        return false;
+    }
 
 
     // Calculate points based on word length
@@ -305,7 +303,7 @@ public boolean checkDiagonals(String word) {
                 return 0; // Invalid word length
         }
     }
-    
+
 
     // Method to check if the highlighted word matches any word in the word list
     public int checkWord(String word) {
@@ -321,5 +319,27 @@ public boolean checkDiagonals(String word) {
 
     public boolean isValidWord(String word) {
         return validWords.contains(word);
+    }
+
+    // Method to initialize the gridMap with characters from the wordGrid
+    public void initializeGridMap() {
+        for (int i = 0; i < wordGrid.length; i++) {
+            for (int j = 0; j < wordGrid[i].length; j++) {
+                String coordinates = i + "," + j;
+                gridMap.put(coordinates, wordGrid[i][j]);
+            }
+        }
+    }
+
+    // Method to get a character from the gridMap based on coordinates
+    public char getCharacterAt(int row, int column) {
+        String coordinates = row + "," + column;
+        return gridMap.getOrDefault(coordinates, ' '); // Return ' ' if no character found
+    }
+
+    // Method to set a character in the gridMap at specified coordinates
+    public void setCharacterAt(int row, int column, char value) {
+        String coordinates = row + "," + column;
+        gridMap.put(coordinates, value);
     }
 }
