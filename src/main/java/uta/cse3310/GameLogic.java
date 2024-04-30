@@ -20,8 +20,9 @@ import org.json.JSONObject;
 public class GameLogic {
     private List<PlayerType> players;
     private Broadcast broadcaster;
-    List<String> validWords;
+    private List<String> validWords;
     private List<String> allWords;
+    private Leaderboard leaderboard; 
     
 
     private int gameId;
@@ -34,6 +35,7 @@ public class GameLogic {
         this.wordGrid = new char[35][35];
         this.broadcaster = broadcaster;
         this.validWords = new ArrayList<>();
+        this.leaderboard = new Leaderboard();
     }
 
     public int getGameId() {
@@ -361,6 +363,11 @@ public class GameLogic {
             default:
                 return 0; // Invalid word length
         }
+    }
+    public void updatePlayerScore(PlayerType player, String word) {
+        int points = calculatePoints(word); // Calculate points for the word
+        player.setScore(player.getScore() + points); // Update player's score
+        leaderboard.addOrUpdatePlayer(player, player.getScore()); // Update player's score in the leaderboard
     }
     
 
