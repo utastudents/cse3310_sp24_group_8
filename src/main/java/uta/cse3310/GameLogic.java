@@ -20,7 +20,7 @@ import org.json.JSONObject;
 public class GameLogic {
     private List<PlayerType> players;
     private Broadcast broadcaster;
-    private List<String> validWords;
+    List<String> validWords;
     private List<String> allWords;
     private Leaderboard leaderboard; 
     
