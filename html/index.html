@@ -70,6 +70,27 @@
         #leaderboard p {
             font-weight: bold;
         }
+
+        #word-list {
+            background-color: #fff; /* White background */
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* subtle shadow */
+        }
+
+        #word-list h3 {
+            color: #007bff; /* Blue color to match your buttons */
+            margin-bottom: 10px; /* Space between title and word list */
+        }
+
+        #word-list-container div {
+            padding: 5px; /* Padding around each word */
+            border-bottom: 1px solid #eee; /* Light line between words */
+        }
+
+        #word-list-container div:last-child {
+            border-bottom: none; /* No border for the last element */
+        }
     </style>
 </head>
 
@@ -98,7 +119,9 @@
             </div>
             <div id="word-list" style="width: 20%;">
                 <h3>Current Words</h3>
-
+                <div id="word-list-container">
+          
+                </div>
             </div>
         </div>
     </div>
@@ -122,29 +145,29 @@
             try {
                 var msg = JSON.parse(evt.data);
                 switch (msg.action) {
-                case "updateLobby":
-                    updateLobby(msg.players);
-                    break;
-                case "startGame":
-                    setupGameScreen(msg.grid, msg.players);
-                    updateWordList(msg.words);  // Assuming 'words' is part of the startGame message
-                    break;
-                case "updateScores":
-                    updateLeaderboard(msg.scores); // Ensure scores are part of the message
-                    break;
-                case "updateWords":
-                    updateWordList(msg.words); // Ensure words are updated when new words are sent
-                    break;
-                case "join":
-                    document.getElementById("lobby-status").innerHTML = "Joined the game!";
-                    break;
-                case "lobbyFull":
-                    document.getElementById("lobby-status").innerHTML = "Lobby is full!";
-                    document.getElementById("joinButton").disabled = true;
-                    break;
-                default:
-                    console.log("Unknown action type:", msg.action);
-            }
+                    case "updateLobby":
+                        updateLobby(msg.players);
+                        break;
+                    case "startGame":
+                        setupGameScreen(msg.grid, msg.players);
+                        updateWordList(msg.words);
+                        break;
+                    case "updateScores":
+                        updateLeaderboard(msg.scores);
+                        break;
+                    case "updateWords":
+                        updateWordList(msg.words);
+                        break;
+                    case "join":
+                        document.getElementById("lobby-status").innerHTML = "Joined the game!";
+                        break;
+                    case "lobbyFull":
+                        document.getElementById("lobby-status").innerHTML = "Lobby is full!";
+                        document.getElementById("joinButton").disabled = true;
+                        break;
+                    default:
+                        console.log("Unknown action type:", msg.action);
+                }
             } catch (error) {
                 console.error("Error handling message from server:", error);
             }
@@ -262,12 +285,12 @@
         }
 
         function updateWordList(words) {
-            var wordListDiv = document.getElementById('word-list');
-            wordListDiv.innerHTML = '';
+            var wordListContainer = document.getElementById('word-list-container');
+            wordListContainer.innerHTML = '';
             words.forEach(function (word) {
                 var entry = document.createElement('div');
-                entry.textContent = word;
-                wordListDiv.appendChild(entry);
+                entry.textContent = word.toUpperCase();
+                wordListContainer.appendChild(entry);
             });
         }
 
