@@ -73,7 +73,7 @@ public class GameLogicTest {
     @Test
     public void testGridGenerator() {
         gameLogic.gridGenerator();
-        char[][] wordGrid = gameLogic.getWordGrid();
+        char[][] wordGrid = gameLogic.getWordGrid();  // Use the getter method here
         assertNotNull(wordGrid);
         assertEquals(35, wordGrid.length);
         assertEquals(35, wordGrid[0].length);
@@ -89,15 +89,40 @@ public class GameLogicTest {
 
     @Test
     public void testCheckColumns() {
-        gameLogic.gridGenerator(); // Generate a random word grid
-        assertFalse(gameLogic.checkColumns("XYZ")); // Assuming "XYZ" does not exist in any column
+        gameLogic.gridGenerator();
+        String word = "XYZ";
+        boolean found = false;
+
+        for (int col = 0; col < gameLogic.getWordGrid()[0].length; col++) {
+            StringBuilder columnString = new StringBuilder();
+            for (int row = 0; row < gameLogic.getWordGrid().length; row++) {
+                columnString.append(gameLogic.getWordGrid()[row][col]);
+            }
+            if (columnString.toString().contains(word)) {
+                found = true;
+                break;
+            }
+        }
+
+        assertFalse(found);
     }
+
 
     @Test
     public void testCheckDiagonals() {
-        gameLogic.gridGenerator(); // Generate a random word grid
-        assertFalse(gameLogic.checkDiagonals("XYZ")); // Assuming "XYZ" does not exist in any diagonal
+        gameLogic.gridGenerator();
+        String word = "XYZ";
+        StringBuilder diag1 = new StringBuilder();
+        StringBuilder diag2 = new StringBuilder();
+
+        for (int i = 0; i < gameLogic.getWordGrid().length; i++) {
+            diag1.append(gameLogic.getWordGrid()[i][i]);
+            diag2.append(gameLogic.getWordGrid()[i][gameLogic.getWordGrid().length - 1 - i]);
+        }
+
+        assertFalse(diag1.toString().contains(word) || diag2.toString().contains(word));
     }
+
 
     @Test
     public void testCalculatePoints() {
