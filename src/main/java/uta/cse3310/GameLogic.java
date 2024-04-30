@@ -6,7 +6,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,20 +22,18 @@ public class GameLogic {
     private Broadcast broadcaster;
     List<String> validWords;
     private List<String> allWords;
+    
 
     private int gameId;
     private char[][] wordGrid;
     private String[] randomWords;
     private double fillerDensity;
 
-    private Map<String, Character> gridMap; // HashMap for the grid
-
     public GameLogic(List<PlayerType> players, Broadcast broadcaster) {
         this.players = players;
         this.wordGrid = new char[35][35];
         this.broadcaster = broadcaster;
         this.validWords = new ArrayList<>();
-        this.gridMap = new HashMap<>();
     }
 
     public int getGameId() {
@@ -69,7 +72,9 @@ public class GameLogic {
 
     public void startGame() {
         initializeGame();
-        selectRandomWords(20); // Ensure this actually selects words
+        selectRandomWords(35);
+        placeWordsInGrid();
+        fillEmptySpaces();
         System.out.println("Random words selected: " + Arrays.toString(randomWords)); // Log selected words
         broadcaster.broadcast("Game starts now!");
         JSONObject startGameMessage = new JSONObject();
@@ -80,7 +85,7 @@ public class GameLogic {
             }
             JSONArray playersJson = serializePlayers(); // Check player serialization
             System.out.println("Serialized players: " + playersJson.toString()); // Log player data
-
+    
             startGameMessage.put("action", "startGame");
             startGameMessage.put("grid", gridArray);
             startGameMessage.put("players", playersJson);
@@ -94,8 +99,7 @@ public class GameLogic {
         gridGenerator();
         setWordsFromFile("https://raw.githubusercontent.com/utastudents/cse3310_sp24_group_8/main/src/main/java/uta/cse3310/words.txt");
         generateFillerDensity();
-        initializeGridMap(); // Initialize the gridMap
-        System.out.println("Game initialized.");
+        System.out.println("Game initialized."); 
     }
 
     public void setWordsFromFile(String url) {
@@ -117,6 +121,54 @@ public class GameLogic {
         this.allWords = wordsList;
         System.out.println("Fetched " + wordsList.size() + " words from file.");
     }
+
+    private boolean placeWord(String word, int row, int col, int direction) {
+        int len = word.length();
+        int rowIncrement = 0, colIncrement = 0;
+        switch (direction) {
+            case 0: colIncrement = 1; break;  // right
+            case 1: rowIncrement = 1; break;  // down
+            case 2: rowIncrement = 1; colIncrement = 1; break;  // diagonal down-right
+            case 3: colIncrement = -1; break; // left
+            case 4: rowIncrement = -1; break; // up
+            case 5: rowIncrement = -1; colIncrement = -1; break; // diagonal up-left
+            case 6: rowIncrement = -1; colIncrement = 1; break;  // diagonal up-right
+            case 7: rowIncrement = 1; colIncrement = -1; break;  // diagonal down-left
+        }
+
+        for (int i = 0; i < len; i++) {
+            int newRow = row + i * rowIncrement;
+            int newCol = col + i * colIncrement;
+            if (newRow < 0 || newRow >= wordGrid.length || newCol < 0 || newCol >= wordGrid[0].length
+                || (wordGrid[newRow][newCol] != '\u0000' && wordGrid[newRow][newCol] != Character.toUpperCase(word.charAt(i)))) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < len; i++) {
+            int newRow = row + i * rowIncrement;
+            int newCol = col + i * colIncrement;
+            wordGrid[newRow][newCol] = Character.toUpperCase(word.charAt(i));
+        }
+        return true;
+    }
+    
+    public void placeWordsInGrid() {
+        Random random = new Random();
+        for (String word : randomWords) {
+            boolean placed = false;
+            for (int attempts = 0; attempts < 100 && !placed; attempts++) {
+                int direction = random.nextInt(8); // Now using 8 directions
+                int row = random.nextInt(wordGrid.length);
+                int col = random.nextInt(wordGrid[0].length);
+                placed = placeWord(word, row, col, direction);
+            }
+            if (!placed) {
+                System.out.println("Failed to place: " + word);
+            }
+        }
+    }
+    
 
 
     public void setWordGrid(List<String> list) {
@@ -200,13 +252,19 @@ public class GameLogic {
         return fillerDensity;
     }
 
-    // Logic to generate the game grid based on parameters
-    public void gridGenerator() {
+    void gridGenerator() {
+        for (int i = 0; i < wordGrid.length; i++) {
+            Arrays.fill(wordGrid[i], '\u0000');  // Fill rows with null character
+        }
+    }
+
+    private void fillEmptySpaces() {
         Random random = new Random();
         for (int i = 0; i < wordGrid.length; i++) {
             for (int j = 0; j < wordGrid[i].length; j++) {
-                // Generate random characters (for simplicity, using ASCII values)
-                wordGrid[i][j] = (char) (random.nextInt(26) + 'A');
+                if (wordGrid[i][j] == '\u0000') {  // Check if the cell is still empty
+                    wordGrid[i][j] = (char) (random.nextInt(26) + 'a');  // Fill with lowercase letters
+                }
             }
         }
     }
@@ -303,7 +361,7 @@ public class GameLogic {
                 return 0; // Invalid word length
         }
     }
-
+    
 
     // Method to check if the highlighted word matches any word in the word list
     public int checkWord(String word) {
@@ -319,27 +377,5 @@ public class GameLogic {
 
     public boolean isValidWord(String word) {
         return validWords.contains(word);
-    }
-
-    // Method to initialize the gridMap with characters from the wordGrid
-    public void initializeGridMap() {
-        for (int i = 0; i < wordGrid.length; i++) {
-            for (int j = 0; j < wordGrid[i].length; j++) {
-                String coordinates = i + "," + j;
-                gridMap.put(coordinates, wordGrid[i][j]);
-            }
-        }
-    }
-
-    // Method to get a character from the gridMap based on coordinates
-    public char getCharacterAt(int row, int column) {
-        String coordinates = row + "," + column;
-        return gridMap.getOrDefault(coordinates, ' '); // Return ' ' if no character found
-    }
-
-    // Method to set a character in the gridMap at specified coordinates
-    public void setCharacterAt(int row, int column, char value) {
-        String coordinates = row + "," + column;
-        gridMap.put(coordinates, value);
     }
 }

@@ -122,48 +122,53 @@
             try {
                 var msg = JSON.parse(evt.data);
                 switch (msg.action) {
-                    case "updateLobby":
-                        updateLobby(msg.players);
-                        break;
-                    case "startGame":
-                        setupGameScreen(msg.grid, msg.players);
-                        break;
-                    case "join":
-                        document.getElementById("lobby-status").innerHTML = "Joined the game!";
-                        break;
-                    case "lobbyFull":
-                        document.getElementById("lobby-status").innerHTML = "Lobby is full!";
-                        document.getElementById("joinButton").disabled = true;
-                        break;
-                    default:
-                        console.log("Received unknown action type:", msg.action);
-                }
+                case "updateLobby":
+                    updateLobby(msg.players);
+                    break;
+                case "startGame":
+                    setupGameScreen(msg.grid, msg.players);
+                    updateWordList(msg.words);  // Assuming 'words' is part of the startGame message
+                    break;
+                case "updateScores":
+                    updateLeaderboard(msg.scores); // Ensure scores are part of the message
+                    break;
+                case "updateWords":
+                    updateWordList(msg.words); // Ensure words are updated when new words are sent
+                    break;
+                case "join":
+                    document.getElementById("lobby-status").innerHTML = "Joined the game!";
+                    break;
+                case "lobbyFull":
+                    document.getElementById("lobby-status").innerHTML = "Lobby is full!";
+                    document.getElementById("joinButton").disabled = true;
+                    break;
+                default:
+                    console.log("Unknown action type:", msg.action);
+            }
             } catch (error) {
                 console.error("Error handling message from server:", error);
             }
         }
 
         function setupGameScreen(grid, players) {
-            document.getElementById('lobby-container').style.display = 'none'; //hide lobby
-            document.getElementById('game-container').style.display = 'block'; //show game screen
+            document.getElementById('lobby-container').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
 
             var gridTable = document.getElementById('game-grid');
             gridTable.innerHTML = '';
 
-            // Loop through each row and column of the grid map
-            grid.forEach((row, rowIndex) => {
+            for (let i = 0; i < grid.length; i++) {
                 var tr = document.createElement('tr');
-                row.forEach((_, colIndex) => {
+                for (let j = 0; j < grid[i].length; j++) {
                     var td = document.createElement('td');
-                    var character = getCharacterAt(rowIndex, colIndex); // Get character from grid map
-                    td.textContent = character;
-                    td.dataset.row = rowIndex.toString();
-                    td.dataset.col = colIndex.toString();
+                    td.textContent = grid[i][j] === '\u0000' ? ' ' : grid[i][j]; // Display empty space for null chars
+                    td.dataset.row = i.toString();
+                    td.dataset.col = j.toString();
                     td.addEventListener('click', handleCellClick);
                     tr.appendChild(td);
-                });
+                }
                 gridTable.appendChild(tr);
-            });
+            }
         }
 
         // Function to get a character from the grid map based on coordinates
