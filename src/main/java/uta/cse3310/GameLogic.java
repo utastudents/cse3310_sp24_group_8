@@ -89,6 +89,7 @@ public class GameLogic {
             startGameMessage.put("action", "startGame");
             startGameMessage.put("grid", gridArray);
             startGameMessage.put("players", playersJson);
+            startGameMessage.put("words", new JSONArray(randomWords));
             broadcaster.broadcast(startGameMessage.toString());
         } catch (JSONException e) {
             e.printStackTrace();
