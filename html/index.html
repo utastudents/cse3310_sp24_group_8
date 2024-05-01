@@ -277,12 +277,11 @@
 
         function updateLeaderboard(players) {
             var leaderboardDiv = document.getElementById('leaderboard');
-            leaderboardDiv.innerHTML = '<h3>Leaderboard</h3>';  // Clear current content but keep the header
-
-            players.forEach(function(player) {
-                var playerEntry = document.createElement('div');
-                playerEntry.textContent = `${player.nickname}: ${player.score}`;
-                leaderboardDiv.appendChild(playerEntry);
+            leaderboardDiv.innerHTML = '';
+            players.forEach(function (player) {
+                var entry = document.createElement('div');
+                entry.textContent = player.nickname + ': ' + player.score;
+                leaderboardDiv.appendChild(entry);
             });
         }
 
