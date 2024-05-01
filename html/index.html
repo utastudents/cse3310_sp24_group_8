@@ -151,6 +151,7 @@
                     case "startGame":
                         setupGameScreen(msg.grid, msg.players);
                         updateWordList(msg.words);
+                        updateLeaderboard(msg.players);
                         break;
                     case "updateScores":
                         updateLeaderboard(msg.scores);
@@ -276,11 +277,12 @@
 
         function updateLeaderboard(players) {
             var leaderboardDiv = document.getElementById('leaderboard');
-            leaderboardDiv.innerHTML = '';
-            players.forEach(function (player) {
-                var entry = document.createElement('div');
-                entry.textContent = player.nickname + ': ' + player.score;
-                leaderboardDiv.appendChild(entry);
+            leaderboardDiv.innerHTML = '<h3>Leaderboard</h3>';  // Clear current content but keep the header
+
+            players.forEach(function(player) {
+                var playerEntry = document.createElement('div');
+                playerEntry.textContent = `${player.nickname}: ${player.score}`;
+                leaderboardDiv.appendChild(playerEntry);
             });
         }
 
