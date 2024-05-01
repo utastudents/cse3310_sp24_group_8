@@ -9,6 +9,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -23,6 +24,8 @@ public class GameLogic {
     List<String> validWords;
     private List<String> allWords;
     private Leaderboard leaderboard; 
+    private HashMap<String, String> foundWords = new HashMap<>();
+
     
 
     private int gameId;
@@ -386,4 +389,16 @@ public class GameLogic {
     public boolean isValidWord(String word) {
         return validWords.contains(word);
     }
+
+
+    public void wordFound(String word, PlayerType player) {
+        System.out.println("Received word from client: " + word);
+        if (validWords.contains(word.toLowerCase()) && !foundWords.containsKey(word.toLowerCase())) {
+            foundWords.put(word.toLowerCase(), player.getNickname());
+            updatePlayerScore(player, word);
+        } else {
+            System.out.println("Word not valid or already found: " + word);
+        }
+    }
+    
 }

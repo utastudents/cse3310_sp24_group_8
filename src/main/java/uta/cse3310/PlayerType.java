@@ -29,6 +29,10 @@ public class PlayerType {
         this.status = status;
     }
 
+    public void incrementScore(int points) {
+        this.score += points;
+    }
+
     //getters and setters
     public String getNickname(){
         return nickname;
