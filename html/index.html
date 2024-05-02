@@ -166,6 +166,13 @@
                         document.getElementById("lobby-status").innerHTML = "Lobby is full!";
                         document.getElementById("joinButton").disabled = true;
                         break;
+                    case "wordValidated":
+                        if (msg.isValid) {
+                            updateScores(msg.player, msg.score);
+                        } else {
+                            resetHighlights();  // If word is not valid, remove temporary highlights
+                        }
+                        break;
                     default:
                         console.log("Unknown action type:", msg.action);
                 }
@@ -203,76 +210,117 @@
 
         function handleCellClick(event) {
             var cell = event.target;
-            //this is first cell if no cell has been clicked
-            if (!firstCell) {
-                if (lastCell) {
-                    resetHighlights();
-                }
-                firstCell = cell;
-                cell.style.backgroundColor = 'yellow';
-                console.log("First cell selected", firstCell.dataset.row, firstCell.dataset.col);
 
+            if (!firstCell) {
+                // Select the first cell
+                firstCell = cell;
+                firstCell.style.backgroundColor = 'yellow';  // Highlight the first cell
+                console.log("First cell selected at:", firstCell.dataset.row, firstCell.dataset.col);
             } else if (!lastCell && firstCell !== cell) {
+                // Select the second cell and check the selection
                 lastCell = cell;
-                highlightWord();
+                lastCell.style.backgroundColor = 'yellow';  // Highlight the last cell temporarily
+                console.log("Last cell selected at:", lastCell.dataset.row, lastCell.dataset.col);
+                checkSelection(firstCell, lastCell);
             } else {
+                // Reset if the same cell is clicked or a new selection is started
                 resetHighlights();
                 firstCell = cell;
                 lastCell = null;
-                cell.style.backgroundColor = 'yellow';
-                console.log("First cell reselected", firstCell.dataset.row, firstCell.dataset.col);
+                firstCell.style.backgroundColor = 'yellow';  // Highlight the new first cell
+                console.log("Resetting selection to new first cell at:", firstCell.dataset.row, firstCell.dataset.col);
             }
         }
 
         function resetHighlights() {
+            // Logic to reset all highlights and clear selection
             var cells = document.querySelectorAll('#game-grid td');
-            cells.forEach(cell => {
-                cell.style.backgroundColor = ''; // Clear the background color
-            });
+            cells.forEach(cell => cell.style.backgroundColor = '');
             firstCell = null;
             lastCell = null;
         }
 
-        function highlightWord() {
-            if (firstCell && lastCell && areCellsAligned(firstCell, lastCell)) {
-                let startRow = parseInt(firstCell.dataset.row);
-                let startCol = parseInt(firstCell.dataset.col);
-                let endRow = parseInt(lastCell.dataset.row);
-                let endCol = parseInt(lastCell.dataset.col);
-                let rowIncrement = endRow === startRow ? 0 : (endRow > startRow ? 1 : -1);
-                let colIncrement = endCol === startCol ? 0 : (endCol > startCol ? 1 : -1);
+        function highlightWord(firstCell, lastCell) {
+            let startRow = parseInt(firstCell.dataset.row);
+            let startCol = parseInt(firstCell.dataset.col);
+            let endRow = parseInt(lastCell.dataset.row);
+            let endCol = parseInt(lastCell.dataset.col);
+            let rowIncrement = (endRow === startRow) ? 0 : (endRow > startRow ? 1 : -1);
+            let colIncrement = (endCol === startCol) ? 0 : (endCol > startCol ? 1 : -1);
 
-                let row = startRow, col = startCol;
-                while (row !== endRow + rowIncrement || col !== endCol + colIncrement) {
-                    document.querySelector(`td[data-row="${row}"][data-col="${col}"]`).style.backgroundColor = 'lightblue';
-                    row += rowIncrement;
-                    col += colIncrement;
-                }
+            let currentRow = startRow;
+            let currentCol = startCol;
 
-                //reset selections
-                firstCell = null;
-                lastCell = null;
-            } else {
-                //clear selection if logic not met
-                if (firstCell) firstCell.style.backgroundColor = '';
-                if (lastCell) lastCell.style.backgroundColor = '';
-                firstCell = null;
-                lastCell = null;
+            while (true) {
+                document.querySelector(`td[data-row="${currentRow}"][data-col="${currentCol}"]`).style.backgroundColor = 'lightblue';
+                if (currentRow === endRow && currentCol === endCol) break;
+                currentRow += rowIncrement;
+                currentCol += colIncrement;
             }
         }
 
+        function highlightCells(path) {
+            path.forEach(cell => {
+                cell.style.backgroundColor = 'lightblue';
+            });
+        }
+
         function areCellsAligned(firstCell, lastCell) {
-            //checks if the cells are in a straight line (horizontal, vertical, diagonal)
             let startRow = parseInt(firstCell.dataset.row);
             let startCol = parseInt(firstCell.dataset.col);
             let endRow = parseInt(lastCell.dataset.row);
             let endCol = parseInt(lastCell.dataset.col);
 
-            if (startRow === endRow || startCol === endCol) return true;
-            if (Math.abs(endRow - startRow) === Math.abs(endCol - startCol)) return true;
-            return false;
+            return (startRow === endRow || startCol === endCol || Math.abs(endRow - startRow) === Math.abs(endCol - startCol));
         }
 
+        function checkSelection(firstCell, lastCell) {
+            if (areCellsAligned(firstCell, lastCell)) {
+                let word = formWordFromCells(firstCell, lastCell);
+                if (isValidWord(word)) {
+                    highlightWord(firstCell, lastCell);  // Highlight the whole word
+                    updateScore(word);  // Update score for the found word
+                } else {
+                    resetHighlights();  // Optionally reset if the formed word is invalid
+                }
+            } else {
+                resetHighlights();  // Reset if cells are not aligned
+            }
+        }   
+
+        function formWordFromSelection(firstCell, lastCell) {
+            let word = "";
+            let startRow = parseInt(firstCell.dataset.row);
+            let startCol = parseInt(firstCell.dataset.col);
+            let endRow = parseInt(lastCell.dataset.row);
+            let endCol = parseInt(lastCell.dataset.col);
+            let rowIncrement = (endRow === startRow) ? 0 : (endRow > startRow ? 1 : -1);
+            let colIncrement = (endCol === startCol) ? 0 : (endCol > startCol ? 1 : -1);
+
+            let currentRow = startRow;
+            let currentCol = startCol;
+
+            while (true) {
+                word += document.querySelector(`td[data-row="${currentRow}"][data-col="${currentCol}"]`).textContent;
+                if (currentRow === endRow && currentCol === endCol) break;
+                currentRow += rowIncrement;
+                currentCol += colIncrement;
+            }
+
+            return word;
+        }
+
+        function isValidWord(word) {
+            return wordBank.includes(word.toUpperCase());
+        }
+
+        function updateScore(word) {
+            // Assuming you have a way to get the current player
+            let player = getCurrentPlayer();
+            let points = calculatePoints(word); // Implement this based on your scoring logic
+            player.score += points;
+            updateLeaderboard();  // Assuming this function refreshes the leaderboard display
+        }
 
 
         function updateLeaderboard(players) {
