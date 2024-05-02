@@ -21,10 +21,10 @@ import org.json.JSONObject;
 public class GameLogic {
     private List<PlayerType> players;
     private Broadcast broadcaster;
-    List<String> validWords;
     private List<String> allWords;
     private Leaderboard leaderboard; 
     private HashMap<String, String> foundWords = new HashMap<>();
+    List<String> validWords = new ArrayList<>();
 
     
 
@@ -367,10 +367,15 @@ public class GameLogic {
                 return 0; // Invalid word length
         }
     }
+
     public void updatePlayerScore(PlayerType player, String word) {
-        int points = calculatePoints(word); // Calculate points for the word
-        player.setScore(player.getScore() + points); // Update player's score
-        leaderboard.addOrUpdatePlayer(player, player.getScore()); // Update player's score in the leaderboard
+        int points = calculatePoints(word);
+        player.setScore(player.getScore() + points);
+        broadcastPlayerScoreUpdate(player);
+    }
+
+    public void setValidWords(List<String> words) {
+        this.validWords = new ArrayList<>(words); // Create a copy of the list
     }
     
 
@@ -392,13 +397,87 @@ public class GameLogic {
 
 
     public void wordFound(String word, PlayerType player) {
-        System.out.println("Received word from client: " + word);
-        if (validWords.contains(word.toLowerCase()) && !foundWords.containsKey(word.toLowerCase())) {
-            foundWords.put(word.toLowerCase(), player.getNickname());
+        if (isValidWord(word) && !foundWords.containsKey(word)) {
+            foundWords.put(word, player.getNickname());
             updatePlayerScore(player, word);
+            broadcastWordFound(word, player);
         } else {
-            System.out.println("Word not valid or already found: " + word);
+            System.out.println("Invalid word or already found: " + word);
         }
     }
+
+    public synchronized void validateAndBroadcastWord(String word, String playerName) {
+        PlayerType player = findPlayerByName(playerName);
+        if (validWords.contains(word.toLowerCase()) && !foundWords.containsKey(word.toLowerCase())) {
+            int score = calculatePoints(word);
+            player.incrementScore(score);
+            foundWords.put(word.toLowerCase(), playerName);
+            broadcastWordFound(word, player);
+            updateAllClientsWithScores();
+        }
+    }
+
+    private void updateAllClientsWithScores() {
+        JSONObject message = new JSONObject();
+        try {
+            message.put("action", "updateScores");
+            message.put("scores", serializeScores());
+            broadcaster.broadcast(message.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private JSONArray serializeScores() {
+        JSONArray scoresArray = new JSONArray();
+        for (PlayerType player : players) {
+            JSONObject scoreDetail = new JSONObject();
+            try {
+                scoreDetail.put("nickname", player.getNickname());
+                scoreDetail.put("score", player.getScore());
+                scoresArray.put(scoreDetail);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return scoresArray;
+    }
+    
+
+    private void broadcastWordFound(String word, PlayerType player) {
+        JSONObject message = new JSONObject();
+        try {
+            message.put("action", "wordFound");
+            message.put("word", word);
+            message.put("player", player.getNickname());
+            message.put("score", player.getScore());
+            broadcaster.broadcast(message.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private PlayerType findPlayerByName(String playerName) {
+        for (PlayerType player : players) {
+            if (player.getNickname().equals(playerName)) {
+                return player;
+            }
+        }
+        return null; // or throw an exception if player must exist
+    }
+
+
+    private void broadcastPlayerScoreUpdate(PlayerType player) {
+        JSONObject message = new JSONObject();
+        try {
+            message.put("action", "updateScores");
+            message.put("player", player.getNickname());
+            message.put("score", player.getScore());
+            broadcaster.broadcast(message.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+    
     
 }
