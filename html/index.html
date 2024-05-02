@@ -126,6 +126,8 @@
         </div>
     </div>
 
+    <button id="refreshButton">Refresh</button>
+
     <script>
         var connection = null;
         var serverUrl = "ws://" + window.location.hostname + ":9108";
@@ -184,6 +186,7 @@
         function setupGameScreen(grid, players) {
             document.getElementById('lobby-container').style.display = 'none';
             document.getElementById('game-container').style.display = 'block';
+            document.getElementById('players-in-lobby').innerHTML = '';
 
             var gridTable = document.getElementById('game-grid');
             gridTable.innerHTML = '';
@@ -388,6 +391,11 @@
         document.getElementById("ready-button").addEventListener("click", function () {
             connection.send(JSON.stringify({ action: "ready" }));
             document.getElementById("ready-button").disabled = true;
+        });
+
+        document.getElementById("refreshButton").addEventListener("click", function () {
+            // Implement your refresh logic here
+            connection.send(JSON.stringify({ action: "refresh" }));
         });
     </script>
 </body>
