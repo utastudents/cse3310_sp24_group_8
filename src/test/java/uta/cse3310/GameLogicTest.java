@@ -2,6 +2,7 @@ package uta.cse3310;
 
 import static org.junit.Assert.*;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,11 +33,11 @@ public class GameLogicTest {
         mockBroadcast = new MockBroadcast();
         gameLogic = new GameLogic(players, mockBroadcast);
         gameLogic.validWords.add("word");
+        gameLogic.setValidWords(Arrays.asList("word", "test", "example"));
     }
 
     @Test
     public void testIsValidWord() {
-        // Assuming isValidWord checks something about the first player
         assertTrue(gameLogic.isValidWord("word"));
         assertFalse(gameLogic.isValidWord("nonexistent"));
     }
